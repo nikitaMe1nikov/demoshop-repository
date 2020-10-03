@@ -1,6 +1,16 @@
-# DemoShop
+# DemoShop = NestJS(apollo-server) + NextJS(React + material-ui + Directorr + apollo-client)
 
-This project was generated using [Nx](https://nx.dev).
+Demo user mail@mail.com:12345678
+
+## Installation
+
+Run `npm install` or `yarn install`
+
+## Development server
+
+Run api `yarn start:api` and run app `yarn start`.
+
+## This project was generated using [Nx](https://nx.dev).
 
 <p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/nx-logo.png" width="450"></p>
 

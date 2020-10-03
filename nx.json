@@ -25,6 +25,9 @@
     "demoshop-e2e": {
       "tags": [],
       "implicitDependencies": ["demoshop"]
+    },
+    "api": {
+      "tags": []
     }
   }
 }

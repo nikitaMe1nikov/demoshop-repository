@@ -1,0 +1,39 @@
+type Query {
+  cart: Order!
+  orders: [Order!]
+}
+
+type Mutation {
+  addToCart(productID: String!): Order!
+  removeFromCart(productID: String!): Order!
+  deleteFromCart(productID: String!): Order!
+  fillCart: Order!
+}
+
+type Subscription {
+  cartChanged(userID: String!): CartChangedEvent!
+}
+
+type CartChangedEvent {
+  order: Order!
+  date: DateTime!
+}
+
+extend type Product {
+  amount: Int
+}
+
+type Order {
+  id: ID!
+  status: OrderStatus!
+  total: Int!
+  price: Int!
+  discount: Int!
+  products: [Product]!
+}
+
+enum OrderStatus {
+  CREATED
+  FILLED
+  COMPLATED
+}

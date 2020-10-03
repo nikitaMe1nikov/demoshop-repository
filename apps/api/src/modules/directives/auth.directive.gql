@@ -1,0 +1,9 @@
+directive @auth(
+  role: UserRole = USER,
+) on FIELD_DEFINITION
+
+enum UserRole {
+  ANONIM
+  USER
+  ADMIN
+} 

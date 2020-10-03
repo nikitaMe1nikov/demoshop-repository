@@ -1,0 +1,16 @@
+type Query {
+  banners: [Banner!]!
+}
+
+type Banner {
+  id: ID!
+  name: String!
+  description: String!
+  images: Image!
+}
+
+type Image {
+  small: String!
+  medium: String!
+  big: String!
+}

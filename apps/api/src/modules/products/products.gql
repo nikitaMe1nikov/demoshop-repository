@@ -1,0 +1,31 @@
+type Query {
+  products(categoryID: String!, sort: ProductsSort = PriceASC, first: Int = 30, after: Int = 0): Products
+  product(id: String): Product!
+}
+
+type Mutation {
+  addFavorite(id: String): Product!
+  removeFavorite(id: String): Product!
+}
+
+type Products {
+  nodes: [Product!]!
+  total: Int!
+  endCursor: Int!
+  hasNextPage: Boolean!
+  currentSort: ProductsSort!
+}
+
+type Product {
+  id: ID!
+  name: String!
+  price: Int!
+  category: Category!
+  favorite: Boolean!
+  description: String!
+}
+
+enum ProductsSort {
+  PriceASC
+  PriceDSC
+}

@@ -1,0 +1,10 @@
+type Query {
+  categories: [Category!]!
+  category(id: String): Category!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  products: [Product!]!
+}

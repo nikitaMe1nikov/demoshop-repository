@@ -25,6 +25,8 @@
 !.vscode/extensions.json
 
 # misc
+.yalc
+yalc.lock
 /.sass-cache
 /connect.lock
 /coverage

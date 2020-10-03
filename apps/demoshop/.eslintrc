@@ -215,6 +215,7 @@
     "no-array-constructor": "off",
     "@typescript-eslint/no-array-constructor": "warn",
     "@typescript-eslint/no-namespace": "error",
+    "@typescript-eslint/no-empty-function": ["error", { "allow": ["arrowFunctions"] }],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": [
       "warn",

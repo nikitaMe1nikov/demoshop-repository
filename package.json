@@ -2,6 +2,15 @@
   "name": "demo-shop",
   "version": "0.0.0",
   "license": "MIT",
+  "author": "Nikita Melnikov",
+  "homepage": "https://github.com/nikitaMe1nikov/demoshop-repository#readme",
+  "bugs": {
+    "url": "https://github.com/nikitaMe1nikov/demoshop-repository/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nikitaMe1nikov/demoshop-repository.git"
+  },
   "scripts": {
     "nx": "nx",
     "start": "nx serve demoshop",

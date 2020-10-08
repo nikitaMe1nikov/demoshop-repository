@@ -4,6 +4,9 @@
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    },
     "project": "./tsconfig.json"
   },
   "ignorePatterns": ["**/*"],
@@ -16,6 +19,9 @@
     "prettier/@typescript-eslint",
     "plugin:prettier/recommended"
   ],
+  "globals": {
+    "__DEV__": false
+  },
   "rules": {
     "prettier/prettier": ["error", {
       "singleQuote": true,

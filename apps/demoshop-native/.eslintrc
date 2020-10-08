@@ -1,0 +1,32 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "jest": true,
+    "node": true
+  },
+  "settings": { "react": { "version": "detect" } },
+  "plugins": ["import", "jsx-a11y", "react", "react-hooks", "react-native"],
+  "extends": ["../../.eslintrc", "plugin:react/recommended", "plugin:react-native/all"],
+  "ignorePatterns": ["!**/*", "ios", "android", "ignite", "bin"],
+  "rules": {
+    "comma-dangle": 0,
+    "no-unused-vars": 0,
+    "no-undef": 0,
+    "quotes": 0,
+    "react/no-unescaped-entities": 0,
+    "react/prop-types": "off",
+    "react-native/no-raw-text": 0,
+    "space-before-function-paren": 0,
+    "@typescript-eslint/ban-ts-ignore": 0,
+    "@typescript-eslint/indent": 0,
+    "@typescript-eslint/explicit-member-accessibility": 0,
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/member-delimiter-style": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-object-literal-type-assertion": 0,
+    "@typescript-eslint/no-empty-interface": 0,
+    "@typescript-eslint/no-var-requires": 0
+  }
+}

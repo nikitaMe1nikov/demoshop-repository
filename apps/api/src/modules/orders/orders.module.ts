@@ -1,9 +1,9 @@
 import { Module, forwardRef } from '@nestjs/common';
-import ProductsModule from 'modules/products/products.module';
+import ProductsModule from '@api/modules/products/products.module';
 import OrdersResolvers from './orders.resolvers';
 import OrdersService from './orders.service';
-import UsersModule from 'modules/users/users.module';
-import PubsubService from 'modules/pubsub/pubsub.service';
+import UsersModule from '@api/modules/users/users.module';
+import PubsubService from '@api/modules/pubsub/pubsub.service';
 
 @Module({
   providers: [OrdersService, OrdersResolvers, PubsubService],

@@ -1,7 +1,7 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { defaultFieldResolver, GraphQLField } from 'graphql';
-import { User } from 'modules/gql.schema';
+import { User } from '@demo/gql-schema';
 
 export default class AuthDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field: GraphQLField<any, any>) {

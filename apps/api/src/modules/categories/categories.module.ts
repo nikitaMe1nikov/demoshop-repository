@@ -1,7 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import CategoriesResolvers from './categories.resolvers';
 import CategoriesService from './categories.service';
-import ProductsModule from 'modules/products/products.module';
+import ProductsModule from '@api/modules/products/products.module';
 
 @Module({
   providers: [CategoriesService, CategoriesResolvers],

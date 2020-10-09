@@ -1,12 +1,12 @@
 import { HttpException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, ResolveField, Parent, Context } from '@nestjs/graphql';
-import { Order, arrayOrder } from 'utils';
-import { ProductsSort } from '../gql.schema';
-import type { ProductData } from 'db';
+import { Order, arrayOrder } from '@api/utils';
+import { ProductsSort } from '@demo/gql-schema';
+import type { ProductData } from '@api/db';
 import ProductsService from './products.service';
-import CategoriesService from 'modules/categories/categories.service';
-import UsersService from 'modules/users/users.service';
-import { ERROR_CODE, ERROR_CODE_MESSAGES } from 'CONSTANTS';
+import CategoriesService from '@api/modules/categories/categories.service';
+import UsersService from '@api/modules/users/users.service';
+import { ERROR_CODE, ERROR_CODE_MESSAGES } from '@api/CONSTANTS';
 
 @Resolver('Product')
 export default class ProductsResolvers {

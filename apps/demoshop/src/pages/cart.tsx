@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import { useStore } from '@nimel/directorr-react';
 import { DirectorrNextComponent } from '@nimel/directorr-next';
 import Grid from '@material-ui/core/Grid';
-import Page from 'components/Page';
-import MainBar from 'modules/MainBar';
-import ProductCard from 'modules/Cart/ProductCard';
-import CartStore from 'modules/Cart/CartStore';
-import UserStore from 'modules/Profile/UserStore';
-import CartPanel from 'modules/Cart/CartPanel';
+import Page from '@demoshop/components/Page';
+import MainBar from '@demoshop/components/MainBar';
+import ProductCard from '@demoshop/components/Cart/ProductCard';
+import { CartStore } from '@demo/cart-store';
+import { UserStore } from '@demo/user-store';
+import CartPanel from '@demoshop/components/Cart/CartPanel';
+import ProductDetailsModal from '@demoshop/components/Catalog/ProductDetailsModal';
 
 export const Cart: DirectorrNextComponent = () => {
   const {
@@ -20,6 +21,10 @@ export const Cart: DirectorrNextComponent = () => {
     deleteFromCart,
     showProductDetailsModal,
   } = useStore(CartStore);
+  const onOpenModal = useCallback(
+    (productID: string) => showProductDetailsModal(productID, ProductDetailsModal),
+    [showProductDetailsModal]
+  );
 
   return (
     <Page>
@@ -34,7 +39,7 @@ export const Cart: DirectorrNextComponent = () => {
                   productsMap={productsMap}
                   isLoadingDeleting={isLoadingDeleting}
                   deleteFromCart={deleteFromCart}
-                  onOpenModal={showProductDetailsModal}
+                  onOpenModal={onOpenModal}
                 />
               </Grid>
             ))}

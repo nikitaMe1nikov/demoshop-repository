@@ -1,6 +1,6 @@
 import smoothscroll from 'smoothscroll-polyfill';
 import isPlainObject from 'lodash/isPlainObject';
-import { isHavePassiveEvents } from 'utils/browser';
+import { isHavePassiveEvents } from '@demoshop/utils/browser';
 
 smoothscroll.polyfill();
 

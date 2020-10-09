@@ -5,8 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import { compose, omit } from 'ramda';
 import { DateTimeResolver } from 'graphql-scalars';
 import { constraintDirective, constraintDirectiveTypeDefs } from 'graphql-constraint-directive';
-import AuthDirective from 'modules/directives/auth.directive';
-import { TOKEN_NAME_IN_COOKIE, ANONIM_CART_NAME_IN_COOKIE } from 'CONSTANTS';
+import AuthDirective from '@api/modules/directives/auth.directive';
+import { TOKEN_NAME_IN_COOKIE, ANONIM_CART_NAME_IN_COOKIE } from '@api/CONSTANTS';
 
 const PROJECT_PATH = 'apps/api/src';
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
@@ -22,7 +22,7 @@ export default class GraphqlOptions implements GqlOptionsFactory {
       typeDefs: [constraintDirectiveTypeDefs],
       installSubscriptionHandlers: true,
       definitions: {
-        path: join(process.cwd(), PROJECT_PATH, './modules/gql.schema.ts'),
+        path: join(process.cwd(), './libs/gql-schema/src/index.ts'),
         outputAs: 'class',
         emitTypenameField: true,
       },

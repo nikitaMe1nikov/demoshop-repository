@@ -5,15 +5,15 @@ import Box from '@material-ui/core/Box';
 import { useStore } from '@nimel/directorr-react';
 import { DirectorrNextComponent } from '@nimel/directorr-next';
 import Grid from '@material-ui/core/Grid';
-import Page from 'components/Page';
-import MainBar from 'modules/MainBar';
-import CategoryPanel from 'modules/Categories/CategoryPanel';
-import BannerCard, { BannerCardLoading } from 'modules/Dashboard/BannerCard';
-import FavoriteProductsGrid from 'modules/Dashboard/FavoriteProductsGrid';
-import DashboardStore from 'modules/Dashboard/DashboardStore';
-import CategoriesStore from 'modules/Categories/CategoriesStore';
-import CartStore from 'modules/Cart/CartStore';
-import UserStore from 'modules/Profile/UserStore';
+import Page from '@demoshop/components/Page';
+import MainBar from '@demoshop/components/MainBar';
+import CategoryPanel from '@demoshop/components/Categories/CategoryPanel';
+import BannerCard, { BannerCardLoading } from '@demoshop/components/Dashboard/BannerCard';
+import FavoriteProductsGrid from '@demoshop/components/Dashboard/FavoriteProductsGrid';
+import { DashboardStore } from '@demo/dashboard-store';
+import { CategoriesStore } from '@demo/categories-store';
+import { CartStore } from '@demo/cart-store';
+import { UserStore } from '@demo/user-store';
 
 export const Dashboard: DirectorrNextComponent = () => {
   const { banners, isLoading } = useStore(DashboardStore);

@@ -3,8 +3,8 @@ import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { DirectorrNextComponent } from '@nimel/directorr-next';
-import Page from 'components/Page';
-import MainBar from 'modules/MainBar';
+import Page from '@demoshop/components/Page';
+import MainBar from '@demoshop/components/MainBar';
 
 export const PageNotFound: DirectorrNextComponent<{ statusCode: number | null }> = ({
   statusCode,

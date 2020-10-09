@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import DataLoader from 'dataloader';
-import { PRODUCTS } from 'db';
+import { PRODUCTS } from '@api/db';
 
 @Injectable()
 export default class ProductsService {

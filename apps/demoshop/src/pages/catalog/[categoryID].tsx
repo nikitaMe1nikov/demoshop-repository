@@ -1,17 +1,17 @@
 import React from 'react';
 import { DirectorrNextComponent } from '@nimel/directorr-next';
 import Container from '@material-ui/core/Container';
-import Page from 'components/Page';
-import MainBar from 'modules/MainBar';
-import CategoryPanel from 'modules/Categories/CategoryPanel';
-import CatalogStore from 'modules/Catalog/CatalogStore';
-import CategoriesStore from 'modules/Categories/CategoriesStore';
-import CartStore from 'modules/Cart/CartStore';
-import ProductsTitle from 'modules/Catalog/ProductsTitle';
-import ProductsList from 'modules/Catalog/ProductsList';
-import ProductsPagination from 'modules/Catalog/ProductsPagination';
-import UserStore from 'modules/Profile/UserStore';
-import { ROOT_URL } from 'config/url';
+import Page from '@demoshop/components/Page';
+import MainBar from '@demoshop/components/MainBar';
+import CategoryPanel from '@demoshop/components/Categories/CategoryPanel';
+import { CatalogStore } from '@demo/catalog-store';
+import { CategoriesStore } from '@demo/categories-store';
+import { CartStore } from '@demo/cart-store';
+import ProductsTitle from '@demoshop/components/Catalog/ProductsTitle';
+import ProductsList from '@demoshop/components/Catalog/ProductsList';
+import ProductsPagination from '@demoshop/components/Catalog/ProductsPagination';
+import { UserStore } from '@demo/user-store';
+import { ROOT_URL } from '@demo/url';
 
 export const Products: DirectorrNextComponent = () => (
   <Page>

@@ -18,7 +18,27 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@api/*": ["../../api/src/*"],
+      "@api/*": ["apps/api/src/*"],
+      "@demoshop/*": ["apps/demoshop/src/*"],
+      "@demo/user-store": ["libs/user-store/src/index.ts"],
+      "@demo/sagas": ["libs/sagas/src/index.ts"],
+      "@demo/env": ["libs/env/src/index.ts"],
+      "@demo/url": ["libs/url/src/index.ts"],
+      "@demo/snackbar-store": ["libs/snackbar-store/src/index.ts"],
+      "@demo/i18n": ["libs/i18n/src/index.ts"],
+      "@demo/gql-schema": ["libs/gql-schema/src/index.ts"],
+      "@demo/profile-store": ["libs/profile-store/src/index.ts"],
+      "@demo/cart-store": ["libs/cart-store/src/index.ts"],
+      "@demo/modal-box-store": ["libs/modal-box-store/src/index.ts"],
+      "@demo/dashboard-store": ["libs/dashboard-store/src/index.ts"],
+      "@demo/categories-store": ["libs/categories-store/src/index.ts"],
+      "@demo/catalog-store": ["libs/catalog-store/src/index.ts"],
+      "@demo/auth-store": ["libs/auth-store/src/index.ts"],
+      "@demo/product-details-store": [
+        "libs/product-details-store/src/index.ts"
+      ],
+      "@demo/favorites-store": ["libs/favorites-store/src/index.ts"],
+      "@demo/notifications-store": ["libs/notifications-store/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

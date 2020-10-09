@@ -4,7 +4,6 @@
     "types": ["node", "jest"],
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
-    "baseUrl": "./src",
     "target": "es2015"
   },
   "include": ["**/*.ts"]

@@ -1,7 +1,7 @@
 import { configure, action } from 'mobx';
 import { useStaticRendering } from 'mobx-react-lite';
 import { config } from '@nimel/directorr';
-import { isServer } from 'config/env';
+import { isServer } from '@demo/env';
 
 configure({ enforceActions: 'observed' });
 

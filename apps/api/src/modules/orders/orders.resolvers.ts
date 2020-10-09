@@ -11,14 +11,14 @@ import {
 } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import type { OrderData, ProductData } from 'db';
+import type { OrderData, ProductData } from '@api/db';
 import OrdersService from './orders.service';
-import ProductsService from 'modules/products/products.service';
-import { deepMergeArrayRight, Order, arrayOrder } from 'utils';
-import { ANONIM_CART_NAME_IN_COOKIE, ERROR_CODE_MESSAGES } from 'CONSTANTS';
-import UsersService from 'modules/users/users.service';
-import PubsubService from 'modules/pubsub/pubsub.service';
-import { OrderStatus } from 'modules/gql.schema';
+import ProductsService from '@api/modules/products/products.service';
+import { deepMergeArrayRight, Order, arrayOrder } from '@api/utils';
+import { ANONIM_CART_NAME_IN_COOKIE, ERROR_CODE_MESSAGES } from '@api/CONSTANTS';
+import UsersService from '@api/modules/users/users.service';
+import PubsubService from '@api/modules/pubsub/pubsub.service';
+import { OrderStatus } from '@demo/gql-schema';
 
 const SIGN_CONFIG = {
   httpOnly: true,

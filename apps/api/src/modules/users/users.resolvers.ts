@@ -3,18 +3,18 @@ import { Args, Mutation, Query, Resolver, ResolveField, Context } from '@nestjs/
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
-import { UserData, OrderData } from 'db';
-import { TOKEN_NAME_IN_COOKIE, ANONIM_CART_NAME_IN_COOKIE } from 'CONSTANTS';
+import { UserData, OrderData } from '@api/db';
+import { TOKEN_NAME_IN_COOKIE, ANONIM_CART_NAME_IN_COOKIE } from '@api/CONSTANTS';
 import UsersService from './users.service';
-import ProductsService from 'modules/products/products.service';
-import OrdersService from 'modules/orders/orders.service';
+import ProductsService from '@api/modules/products/products.service';
+import OrdersService from '@api/modules/orders/orders.service';
 import {
   UserSignupInput,
   UserLoginInput,
   UserRole,
   OrderStatus,
   UserInfoInput,
-} from 'modules/gql.schema';
+} from '@demo/gql-schema';
 
 const SIGN_CONFIG = {
   httpOnly: true,

@@ -2,8 +2,8 @@ import React, { FC } from 'react';
 import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import Page from 'components/Page';
-import MainBar from 'modules/MainBar';
+import Page from '@demoshop/components/Page';
+import MainBar from '@demoshop/components/MainBar';
 
 export const PageNotFound: FC = () => (
   <Page>

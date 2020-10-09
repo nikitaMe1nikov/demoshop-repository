@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import DataLoader from 'dataloader';
-import { UserData, ORDERS, OrderData } from 'db';
-import { OrderStatus } from 'modules/gql.schema';
+import { UserData, ORDERS, OrderData } from '@api/db';
+import { OrderStatus } from '@demo/gql-schema';
 
 @Injectable()
 export default class OrdersService {

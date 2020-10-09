@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
-import { Product, Category, User, UserRole, Banner, Order, OrderStatus } from 'modules/gql.schema';
-import env from 'env';
+import { Product, Category, User, UserRole, Banner, Order, OrderStatus } from '@demo/gql-schema';
+import env from '@api/env';
 
 function generateList(templates: any[], total = 100, idPrefix: string) {
   const result = [];

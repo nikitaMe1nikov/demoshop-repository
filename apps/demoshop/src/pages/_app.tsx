@@ -1,4 +1,4 @@
-import 'config/init';
+import '@demoshop/config/init';
 import React, { useEffect, FC } from 'react';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -19,14 +19,13 @@ import {
   nextWithDirectorr,
   NextHistoryStore,
 } from '@nimel/directorr-next';
-import { APOLLO_CLIENT_CONTEXT, APOLLO_CONTEXT } from 'sagas/constants';
-import theme from 'config/theme';
-import { isServer, isBrowser } from 'config/env';
-import sagas from 'sagas';
-import showErrorMiddleware from 'middlewares/showErrorMiddleware';
-import ModalBoxContainer from 'modules/ModalBox/ModalBoxContainer';
-import SnackbarContainer from 'modules/Snackbar/ModalBoxContainer';
-import { EMPTY_OBJECT } from 'utils/constants';
+import { APOLLO_CLIENT_CONTEXT, APOLLO_CONTEXT, rootSaga } from '@demo/sagas';
+import theme from '@demoshop/config/theme';
+import { isServer, isBrowser } from '@demo/env';
+import showErrorMiddleware from '@demoshop/middlewares/showErrorMiddleware';
+import ModalBoxContainer from '@demoshop/components/ModalBox/ModalBoxContainer';
+import SnackbarContainer from '@demoshop/components/Snackbar/SnackbarContainer';
+import { EMPTY_OBJECT } from '@demoshop/utils/constants';
 
 const httpLink = new HttpLink({
   uri: 'http://localhost:4200/graphql',
@@ -74,7 +73,7 @@ export const makeDirectorr: MakeDirectorr = (ctx, router, initialState?) => {
   const directorr = new Directorr();
 
   directorr.addReduxMiddlewares(sagaMiddleware);
-  sagaMiddleware.run(sagas);
+  sagaMiddleware.run(rootSaga);
 
   if (initialState) directorr.addInitState(initialState);
 

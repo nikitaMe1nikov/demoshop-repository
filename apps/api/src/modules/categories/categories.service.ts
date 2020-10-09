@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import DataLoader from 'dataloader';
-import { CATEGORIES } from 'db';
+import { CATEGORIES } from '@api/db';
 
 @Injectable()
 export default class CategoriesService {

@@ -1,7 +1,7 @@
 import { Args, Query, Resolver, ResolveField, Parent } from '@nestjs/graphql';
-import type { CategoryData } from 'db';
+import type { CategoryData } from '@api/db';
 import CategoriesService from './categories.service';
-import ProductsService from 'modules/products/products.service';
+import ProductsService from '@api/modules/products/products.service';
 
 @Resolver('Category')
 export default class CategoriesResolvers {

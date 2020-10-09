@@ -10,14 +10,14 @@ import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardActions from '@material-ui/core/CardActions';
 import Skeleton from '@material-ui/lab/Skeleton';
-import Page from 'components/Page';
-import MainBar from 'modules/MainBar';
-import CartStore from 'modules/Cart/CartStore';
-import UserStore from 'modules/Profile/UserStore';
-import TextInput from 'components/TextInput';
-import ProfileStore from 'modules/Profile/ProfileStore';
-import ButtonLoading from 'components/ButtonLoading';
-import { ROOT_URL } from 'config/url';
+import Page from '@demoshop/components/Page';
+import MainBar from '@demoshop/components/MainBar';
+import { CartStore } from '@demo/cart-store';
+import { UserStore } from '@demo/user-store';
+import TextInput from '@demoshop/components/TextInput';
+import { ProfileStore } from '@demo/profile-store';
+import ButtonLoading from '@demoshop/components/ButtonLoading';
+import { ROOT_URL } from '@demo/url';
 
 const useStyles = makeStyles({
   saveButton: {

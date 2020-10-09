@@ -1,5 +1,5 @@
 {
-  "npmScope": "demo-shop",
+  "npmScope": "demo",
   "implicitDependencies": {
     "workspace.json": "*",
     "package.json": {
@@ -27,6 +27,57 @@
       "implicitDependencies": ["demoshop"]
     },
     "api": {
+      "tags": []
+    },
+    "user-store": {
+      "tags": []
+    },
+    "sagas": {
+      "tags": []
+    },
+    "env": {
+      "tags": []
+    },
+    "url": {
+      "tags": []
+    },
+    "snackbar-store": {
+      "tags": []
+    },
+    "i18n": {
+      "tags": []
+    },
+    "gql-schema": {
+      "tags": []
+    },
+    "profile-store": {
+      "tags": []
+    },
+    "cart-store": {
+      "tags": []
+    },
+    "modal-box-store": {
+      "tags": []
+    },
+    "dashboard-store": {
+      "tags": []
+    },
+    "categories-store": {
+      "tags": []
+    },
+    "catalog-store": {
+      "tags": []
+    },
+    "auth-store": {
+      "tags": []
+    },
+    "product-details-store": {
+      "tags": []
+    },
+    "favorites-store": {
+      "tags": []
+    },
+    "notifications-store": {
       "tags": []
     }
   }

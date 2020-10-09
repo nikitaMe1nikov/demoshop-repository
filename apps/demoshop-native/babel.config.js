@@ -20,7 +20,7 @@ module.exports = {
     //   {
     //     root: ['.'],
     //     alias: {
-    //       '^@demo-shop/(.+)': libs + '/\\1/src',
+    //       '^@demo/(.+)': libs + '/\\1/src',
     //     },
     //   },
     // ],

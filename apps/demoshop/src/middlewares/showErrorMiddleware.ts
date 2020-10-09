@@ -1,7 +1,11 @@
 import { Action, Next, DirectorrInterface, createAction } from '@nimel/directorr';
-import { GET_QUERY_ERROR, MUTATE_QUERY_ERROR, SUBSCRIPTION_QUERY_ERROR } from 'sagas/constants';
-import { SNACKBAR_SHOW_ERROR } from 'modules/Snackbar/decorators';
-import { GQLPayload } from 'sagas/types';
+import {
+  actionGQLQueryError,
+  actionGQLMutationError,
+  actionGQLSubscriptionError,
+  GQLPayload,
+} from '@demo/sagas';
+import { actionShowErrorSnack } from '@demo/snackbar-store';
 
 function calcMessage(error: any) {
   if (error.networkError) return 'network error';
@@ -21,13 +25,13 @@ export default function showErrorMiddleware(
   next(action);
 
   if (
-    action.type === GET_QUERY_ERROR ||
-    action.type === MUTATE_QUERY_ERROR ||
-    action.type === SUBSCRIPTION_QUERY_ERROR
+    action.type === actionGQLQueryError.type ||
+    action.type === actionGQLMutationError.type ||
+    action.type === actionGQLSubscriptionError.type
   ) {
     action.payload.errors.map((error) =>
       store.dispatch(
-        createAction(SNACKBAR_SHOW_ERROR, {
+        createAction(actionShowErrorSnack.type, {
           message: calcMessage(error),
           options: OPTIONS,
         })

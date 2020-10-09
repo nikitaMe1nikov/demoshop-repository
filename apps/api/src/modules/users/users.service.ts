@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import DataLoader from 'dataloader';
-import { USERS, UserData } from 'db';
-import { UserRole } from 'modules/gql.schema';
+import { USERS, UserData } from '@api/db';
+import { UserRole } from '@demo/gql-schema';
 
 @Injectable()
 export default class UsersService {

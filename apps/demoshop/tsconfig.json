@@ -13,7 +13,6 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "resolveJsonModule": true,
-    "baseUrl": "./src",
     "isolatedModules": true
   },
   "include": [

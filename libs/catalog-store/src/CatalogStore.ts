@@ -1,14 +1,19 @@
 import { observable, computed, ObservableMap } from 'mobx';
 import { OperationVariables } from 'apollo-client';
 import {
-  injectStore,
   whenInit,
   whenReload,
   propOneOf,
   whenPayload,
   DirectorrStoreClass,
 } from '@nimel/directorr';
-import { NextHistoryStore, historyChange, HistoryChangeActionPayload } from '@nimel/directorr-next';
+import {
+  actionRouterIsPattern,
+  effectRouterIsPatternSuccess,
+  RouterIsPatternSuccessActionPayload,
+  historyChange,
+  HistoryChangeActionPayload,
+} from '@nimel/directorr-router';
 import gql from 'graphql-tag';
 import { Product as ProductType, Category as CategoryType, ProductsSort } from '@demo/gql-schema';
 import {
@@ -24,8 +29,8 @@ import {
 } from '@demo/sagas';
 import { CATEGORY_URL } from '@demo/url';
 import i18n from '@demo/i18n';
-import { actionShowInfoSnack } from '@demo/snackbar-store';
-import { actionOpenModal, ModalBoxPayload } from '@demo/modal-box-store';
+import { actionShowInfoSnack } from '@demo/snackbar';
+import { actionOpenModal, ModalBoxPayload } from '@demo/modal-box';
 import {
   actionSetSort,
   effectSetSort,
@@ -35,6 +40,8 @@ import {
   effectSetPage,
   SortPayload,
   PagePayload,
+  actionUpdateProducts,
+  effectUpdateProduct,
 } from './decorators';
 
 const DEFAULT_VARIABLES = { first: 40 };
@@ -82,7 +89,23 @@ const REMOVE_FAVORITE_PRODUCT_MUTATION = gql`
   ${PRODUCT_FRAGMENT}
 `;
 
-export type Product = Pick<ProductType, 'id' | 'name' | 'price' | 'favorite'>;
+const PRODUCT_DETAILS_QUERY = gql`
+  query Product($productID: String!) {
+    product(id: $productID) {
+      ...ProductFragment
+      description
+      recomendations {
+        ...ProductFragment
+      }
+    }
+  }
+  ${PRODUCT_FRAGMENT}
+`;
+
+export type Product = Pick<
+  ProductType,
+  'id' | 'name' | 'price' | 'favorite' | 'description' | 'recomendations'
+>;
 export type Category = Pick<CategoryType, 'name'>;
 
 export class CatalogStore implements DirectorrStoreClass {
@@ -93,7 +116,9 @@ export class CatalogStore implements DirectorrStoreClass {
   @observable currentCategory?: Category;
   @observable productsTotal?: number;
   @observable hasNextPage?: boolean;
+  @observable isUpdating = false;
   @observable isLoading = true;
+  @observable isLoadingDetails = true;
   @observable isError = false;
   @observable.shallow isLoadingFavorites = new Map<string, null>();
   @observable currentSort: ProductsSort = ProductsSort.PriceASC;
@@ -102,8 +127,7 @@ export class CatalogStore implements DirectorrStoreClass {
     return Math.ceil(this.productsTotal / DEFAULT_VARIABLES.first);
   }
   @observable currentPage = 1;
-
-  @injectStore(NextHistoryStore) router: NextHistoryStore;
+  @observable categoryID = '';
 
   @actionSetSort
   setCurrentSort = (sort: ProductsSort) => ({ sort });
@@ -111,7 +135,7 @@ export class CatalogStore implements DirectorrStoreClass {
   @effectSetSort
   toSetCurrentSort = ({ sort }: SortPayload) => {
     this.currentSort = sort;
-    this.getProducts({ ...this.router.queryObject, sort });
+    this.getProducts({ categoryID: this.categoryID, sort });
   };
 
   @actionSetPage
@@ -130,9 +154,26 @@ export class CatalogStore implements DirectorrStoreClass {
     if (this.hasNextPage)
       this.getProducts({
         after: this.products.length,
-        ...this.router.queryObject,
+        categoryID: this.categoryID,
       });
   };
+
+  @actionUpdateProducts
+  updateList = () => {};
+
+  @effectUpdateProduct
+  toUpdateList = () => {
+    this.getProducts({
+      categoryID: this.categoryID,
+      update: true,
+    });
+  };
+
+  @actionGQLQuery
+  getProduct = (productID: string) => ({
+    query: PRODUCT_DETAILS_QUERY,
+    variables: { productID },
+  });
 
   @actionGQLQuery
   getProducts = (variables: OperationVariables) => ({
@@ -141,21 +182,32 @@ export class CatalogStore implements DirectorrStoreClass {
   });
 
   @actionOpenModal
-  showProductDetailsModal = (productID: string, component: ModalBoxPayload['component']) => ({
+  showProductDetailsModal = <P>(component: ModalBoxPayload<P>['component'], props: P) => ({
     component,
-    props: { productID },
+    props,
   });
 
   @effectGQLQueryLoading
   @effectGQLQuerySuccess
   @effectGQLQueryError
   @whenPayload({ query: PRODUCTS_QUERY })
-  setProductsLoading = ({ data, errors, variables: { after } }: GQLPayload) => {
+  setProductsLoading = ({ data, errors, variables: { after, update } }: GQLPayload) => {
     if (data || errors) {
       this.isLoading = false;
+      this.isUpdating = false;
     } else if (!after) {
       this.isLoading = true;
+    } else if (update) {
+      this.isUpdating = true;
     }
+  };
+
+  @effectGQLQueryLoading
+  @effectGQLQuerySuccess
+  @effectGQLQueryError
+  @whenPayload({ query: PRODUCT_DETAILS_QUERY })
+  setProductLoading = ({ data, errors }: GQLPayload) => {
+    this.isLoadingDetails = !(data || errors);
   };
 
   @effectGQLQueryError
@@ -171,16 +223,22 @@ export class CatalogStore implements DirectorrStoreClass {
       products: { nodes, total, hasNextPage },
       category,
     },
-    variables: { categoryID, reset },
+    variables: { categoryID, reset, update },
   }: GQLPayload) => {
-    if (reset) this.productsMap.clear();
+    if (reset || update) this.productsMap.clear();
 
-    if (categoryID === this.router.queryObject.categoryID) {
+    if (categoryID === this.categoryID) {
       this.productsMap.merge(nodes.map((p) => [p.id, p]));
       this.productsTotal = total;
       this.currentCategory = category;
       this.hasNextPage = hasNextPage;
     }
+  };
+
+  @effectGQLQuerySuccess
+  @whenPayload({ query: PRODUCT_DETAILS_QUERY })
+  setProduct = ({ data: { product } }: GQLPayload) => {
+    this.productsMap.merge([[product.id, product]]);
   };
 
   @actionGQLMutation
@@ -230,20 +288,29 @@ export class CatalogStore implements DirectorrStoreClass {
   whenRemoveFromFavorite = () => ({ message: i18n.productRemovedFromFavorite });
 
   @whenInit
-  toInit = () => {
-    if (!this.isReady && this.router.isCurrentPattern(CATEGORY_URL)) {
-      this.getProducts({ ...this.router.queryObject });
-    }
+  @actionRouterIsPattern
+  toInit = () => ({ pattern: CATEGORY_URL });
+
+  @effectRouterIsPatternSuccess
+  @whenPayload({
+    pattern: CATEGORY_URL,
+  })
+  matchPattern = ({ queryObject }: RouterIsPatternSuccessActionPayload) => {
+    if (queryObject.categoryID) this.categoryID = queryObject.categoryID as string;
   };
 
   @whenReload
   toReload = () => {
-    this.getProducts({ ...this.router.queryObject, reset: true });
+    this.getProducts({ categoryID: this.categoryID, reset: true });
   };
 
   @historyChange(CATEGORY_URL)
   toRouteChange = ({ match, queryObject }: HistoryChangeActionPayload) => {
-    if (match) this.getProducts({ ...queryObject, reset: true });
+    if (match) {
+      this.categoryID = queryObject.categoryID as string;
+
+      this.getProducts({ categoryID: this.categoryID, reset: true });
+    }
   };
 
   get isReady() {

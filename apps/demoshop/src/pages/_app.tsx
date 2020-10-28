@@ -28,7 +28,7 @@ import SnackbarContainer from '@demoshop/components/Snackbar/SnackbarContainer';
 import { EMPTY_OBJECT } from '@demoshop/utils/constants';
 
 const httpLink = new HttpLink({
-  uri: 'http://localhost:4200/graphql',
+  uri: 'http://localhost:3333/graphql',
   credentials: 'same-origin',
 });
 

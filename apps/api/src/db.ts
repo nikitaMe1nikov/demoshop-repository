@@ -14,6 +14,7 @@ function generateList(templates: any[], total = 100, idPrefix: string) {
         id: `${idPrefix}.${i}`,
         name: `${teml.name}.${idPrefix}.${i}`,
         price: Math.ceil(Math.random() * teml.price),
+        recomendations: [`${idPrefix}.${i}`],
       })
     );
   }
@@ -21,8 +22,9 @@ function generateList(templates: any[], total = 100, idPrefix: string) {
   return result;
 }
 
-export interface ProductData extends Omit<Product, 'category'> {
+export interface ProductData extends Omit<Product, 'category' | 'recomendations'> {
   categoryID: string;
+  recomendations: string[];
 }
 
 const PRODUCTS_TEMPLATES = [

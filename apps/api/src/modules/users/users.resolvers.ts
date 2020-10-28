@@ -40,8 +40,18 @@ export default class UsersResolvers {
   ) {}
 
   @Query('me')
-  getReqUser(@Context() { user }) {
+  async getReqUser(@Context() { user, res }) {
+    console.log();
     if (!user) return ANONIM_USER;
+
+    const userDB = await this.users.whereId(user.sub);
+
+    if (!userDB) {
+      res.clearCookie(ANONIM_CART_NAME_IN_COOKIE);
+      res.clearCookie(TOKEN_NAME_IN_COOKIE);
+
+      return ANONIM_USER;
+    }
 
     return this.users.whereId(user.sub);
   }

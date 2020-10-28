@@ -1,6 +1,6 @@
-// const path = require('path');
+const path = require('path');
 
-// const libs = path.resolve(__dirname, '../../libs');
+const libs = path.resolve(__dirname, '../../libs');
 
 module.exports = {
   presets: ['module:metro-react-native-babel-preset'],
@@ -15,14 +15,14 @@ module.exports = {
       },
     ],
     ['@babel/plugin-proposal-optional-catch-binding'],
-    // [
-    //   'module-resolver',
-    //   {
-    //     root: ['.'],
-    //     alias: {
-    //       '^@demo/(.+)': libs + '/\\1/src',
-    //     },
-    //   },
-    // ],
+    [
+      'module-resolver',
+      {
+        alias: {
+          '^@demo/(.+)': libs + '/\\1/src',
+          '@demoshop-native': './app/',
+        },
+      },
+    ],
   ],
 };

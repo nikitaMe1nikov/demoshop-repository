@@ -1,7 +1,9 @@
 import { observable } from 'mobx';
 import { whenInit, whenReload, whenPayload, DirectorrStoreClass } from '@nimel/directorr';
+import { historyChange, HistoryChangeActionPayload } from '@nimel/directorr-router';
 import { Banner } from '@demo/gql-schema';
 import gql from 'graphql-tag';
+import { ROOT_URL } from '@demo/url';
 import {
   actionGQLQuery,
   effectGQLQuerySuccess,
@@ -9,6 +11,7 @@ import {
   effectGQLQueryError,
   GQLPayload,
 } from '@demo/sagas';
+export type { Banner } from '@demo/gql-schema';
 
 const BANNERS_QUERY = gql`
   query {
@@ -50,6 +53,11 @@ export class DashboardStore implements DirectorrStoreClass {
   @whenInit
   toInit = () => {
     if (!this.isReady) this.getBanners();
+  };
+
+  @historyChange(ROOT_URL)
+  toRouteChange = ({ match }: HistoryChangeActionPayload) => {
+    if (match && this.isReady) this.getBanners();
   };
 
   get isReady() {

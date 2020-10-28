@@ -57,7 +57,9 @@ function* waitQueryChannel() {
   while (true) {
     const { payload } = yield take(channel);
 
-    yield delay(WAIT_RESPONSE_TIMEOUT);
+    if (payload.fetchPolicy !== FETCH_POLICY.NETWORK_ONLY) {
+      yield delay(WAIT_RESPONSE_TIMEOUT);
+    }
 
     yield put(createAction(actionGQLQueryLoading.type, payload));
   }
@@ -73,7 +75,7 @@ function* getQueryLoading() {
   }
 }
 
-export default function* query() {
+export function* query() {
   yield takeEvery(actionGQLQuery.type, getQuery);
   yield fork(getQueryLoading);
 }

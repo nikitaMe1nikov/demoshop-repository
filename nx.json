@@ -41,7 +41,7 @@
     "url": {
       "tags": []
     },
-    "snackbar-store": {
+    "snackbar": {
       "tags": []
     },
     "i18n": {
@@ -56,7 +56,7 @@
     "cart-store": {
       "tags": []
     },
-    "modal-box-store": {
+    "modal-box": {
       "tags": []
     },
     "dashboard-store": {
@@ -78,6 +78,12 @@
       "tags": []
     },
     "notifications-store": {
+      "tags": []
+    },
+    "constants": {
+      "tags": []
+    },
+    "orders-store": {
       "tags": []
     }
   }

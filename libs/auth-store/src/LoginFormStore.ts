@@ -1,7 +1,14 @@
 import { computed } from 'mobx';
-import { action, effect, injectStore, connectStore } from '@nimel/directorr';
+import { effect, injectStore, connectStore, EMPTY_OBJECT } from '@nimel/directorr';
 import { object, string } from 'yup';
-import { FormStore, FORM_ACTIONS, validate, validateAll } from '@nimel/directorr-form';
+import {
+  FormStore,
+  actionFormChangeValue,
+  actionFormSubmit,
+  validate,
+  validateAll,
+  validatePayload,
+} from '@nimel/directorr-form';
 import { UserStore } from '@demo/user-store';
 
 const VALIDATION_SCHEME = object().shape({
@@ -16,19 +23,20 @@ export class LoginFormStore {
   @connectStore() password = new FormStore();
 
   @computed get isLoading() {
-    return this.user.isLoading;
+    return this.user.isLoadingLogin;
   }
 
-  @action([FormStore, FORM_ACTIONS.SUBMIT])
-  submitButton = () => {};
+  submitButton = () => {
+    this.submitLogin(EMPTY_OBJECT);
+  };
 
-  @effect([FormStore, FORM_ACTIONS.CHANGE_VALUE])
+  @effect([FormStore, actionFormChangeValue.type])
   @validate(VALIDATION_SCHEME)
   changeLogin = () => {};
 
-  @effect([FormStore, FORM_ACTIONS.SUBMIT])
+  @effect([FormStore, actionFormSubmit.type])
   @validateAll(VALIDATION_SCHEME)
-  submitLogin = ({ validationError }) => {
+  submitLogin = ({ validationError }: validatePayload) => {
     if (!validationError) {
       this.user.login(this.login.value, this.password.value);
     }

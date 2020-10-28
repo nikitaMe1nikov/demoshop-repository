@@ -1,9 +1,16 @@
 import { computed } from 'mobx';
-import { action, effect, injectStore, connectStore } from '@nimel/directorr';
+import { effect, injectStore, connectStore, EMPTY_OBJECT } from '@nimel/directorr';
 import { object, string } from 'yup';
-import { FormStore, FORM_ACTIONS, validate, validateAll } from '@nimel/directorr-form';
+import {
+  FormStore,
+  actionFormChangeValue,
+  actionFormSubmit,
+  validate,
+  validateAll,
+  validatePayload,
+} from '@nimel/directorr-form';
 import { UserStore, effectSignupError } from '@demo/user-store';
-import { actionShowSnack } from '@demo/snackbar-store';
+import { actionShowSnack } from '@demo/snackbar';
 
 const VALIDATION_SCHEME = object().shape({
   email: string().email().required(),
@@ -13,8 +20,7 @@ const VALIDATION_SCHEME = object().shape({
     .min(8)
     .required()
     .test({
-      name: 'equal',
-      message: 'must be equal',
+      message: ({ path }) => `${path} must be equal`,
       test: function (value) {
         return !this.parent.password || this.parent.password === value;
       },
@@ -30,19 +36,20 @@ export class SignupFormStore {
   @connectStore() checkPassword = new FormStore();
 
   @computed get isLoading() {
-    return this.user.isLoading;
+    return this.user.isLoadingSignup;
   }
 
-  @action([FormStore, FORM_ACTIONS.SUBMIT])
-  submitButton = () => {};
+  submitButton = () => {
+    this.submitSignup(EMPTY_OBJECT);
+  };
 
-  @effect([FormStore, FORM_ACTIONS.CHANGE_VALUE])
+  @effect([FormStore, actionFormChangeValue.type])
   @validate(VALIDATION_SCHEME)
   changeLogin = () => {};
 
-  @effect([FormStore, FORM_ACTIONS.SUBMIT])
+  @effect([FormStore, actionFormSubmit.type])
   @validateAll(VALIDATION_SCHEME)
-  submitLogin = ({ validationError }) => {
+  submitSignup = ({ validationError }: validatePayload) => {
     if (!validationError) {
       this.user.signup(this.email.value, this.password.value, this.name.value);
     }

@@ -46,6 +46,6 @@ function* subscriptionQuery({ payload }: Action<string, GQLPayload>) {
   }
 }
 
-export default function* subscription() {
+export function* subscription() {
   yield takeEvery(actionGQLSubscription.type, subscriptionQuery);
 }

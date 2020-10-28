@@ -1,14 +1,21 @@
 import { put, takeEvery, delay } from 'redux-saga/effects';
-import { Action } from '@nimel/directorr';
+import { Action, config } from '@nimel/directorr';
 import { actionDelayAction } from './decorators';
 import { DelayActionPayload } from './types';
 
-function* waitAction({ payload: { wait, nextAction } }: Action<string, DelayActionPayload>) {
+const { createAction } = config;
+
+function* waitAction({
+  payload: {
+    wait,
+    nextAction: { type, payload },
+  },
+}: Action<string, DelayActionPayload>) {
   yield delay(wait);
 
-  yield put(nextAction);
+  yield put(createAction(type, payload));
 }
 
-export default function* delayAction() {
+export function* delayAction() {
   yield takeEvery(actionDelayAction.type, waitAction);
 }

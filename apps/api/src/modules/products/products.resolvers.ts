@@ -42,13 +42,26 @@ export default class ProductsResolvers {
   }
 
   @Query('product')
-  async productWhere(@Args('id') id: string) {
-    return this.products.whereId(id);
+  async productWhere(@Args('id') id: string, @Context() { user }) {
+    const favorites = user ? (await this.users.whereId(user.sub)).favorites : [];
+    const product = await this.products.whereId(id);
+
+    return { ...product, favorite: favorites.indexOf(product.id) !== -1 };
   }
 
   @ResolveField('category')
   async category(@Parent() { categoryID }: ProductData) {
     return this.categories.whereId(categoryID);
+  }
+
+  @ResolveField('recomendations')
+  async recomendations(@Parent() { recomendations }: ProductData, @Context() { user }) {
+    const favorites = user ? (await this.users.whereId(user.sub)).favorites : [];
+    const products = await this.products.whereIds(recomendations);
+
+    return products.length
+      ? products.map((p) => ({ ...p, favorite: favorites.indexOf(p.id) !== -1 }))
+      : [];
   }
 
   @Mutation('addFavorite')

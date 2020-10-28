@@ -1,75 +1,64 @@
-/**
- * Welcome to the main entry point of the app. In this file, we'll
- * be kicking off our app or storybook.
- *
- * Most of this file is boilerplate and you shouldn't need to modify
- * it very often. But take some time to look through and understand
- * what is going on here.
- *
- * The app navigation resides in ./app/navigation, so head over there
- * if you're interested in adding screens and navigators.
- */
-import './i18n';
-import './utils/ignore-warnings';
-import React, { useState, useEffect, useRef } from 'react';
-import { NavigationContainerRef } from '@react-navigation/native';
+import '@demoshop-native/config/init';
+import '@demoshop-native/i18n';
+import React from 'react';
+import { Directorr } from '@nimel/directorr';
+import { DirectorrProvider } from '@nimel/directorr-react';
+import createSagaMiddleware from 'redux-saga';
+import { StyleProvider } from 'native-base';
+import { logMiddleware } from '@nimel/directorr-middlewares';
+import AsyncStorage from '@react-native-community/async-storage';
 import { SafeAreaProvider, initialWindowSafeAreaInsets } from 'react-native-safe-area-context';
-import * as storage from './utils/storage';
-import {
-  useBackButtonHandler,
-  RootNavigator,
-  canExit,
-  setRootNavigation,
-  useNavigationPersistence,
-} from './navigation';
-import { RootStore, RootStoreProvider, setupRootStore } from './models';
+import { APOLLO_CLIENT_CONTEXT } from '@demo/sagas';
+import NavigationRouterContainer from '@demoshop-native/components/NavigationRouter/NavigationRouterContainer';
+import SnackbarContainer from '@demoshop-native/components/Snackbar/SnackbarContainer';
+import rootSaga from '@demoshop-native/sagas';
+import { STORAGE_CONTEXT } from '@demoshop-native/sagas/constants';
+import apolloClient from '@demoshop-native/config/apolloClient';
+import linking from '@demoshop-native/config/linking';
+import getTheme from '@demoshop-native/theme/components';
+import { showErrorSnackMiddleware } from '@demoshop-native/middlewares';
+import platform from '@demoshop-native/theme/variables/platform';
+import { MainNavigator } from '@demoshop-native/navigation/MainNavigator';
+import ModalBoxContainer from '@demoshop-native/components/ModalBox/ModalBoxContainer';
 
-// This puts screens in a native ViewController or Activity. If you want fully native
-// stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
-// https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
-import { enableScreens } from 'react-native-screens';
-enableScreens();
+const theme = {
+  dark: false,
+  colors: {
+    primary: platform.brandPrimary,
+    background: platform.containerBgColor,
+    card: platform.cardDefaultBg,
+    text: platform.inverseTextColor,
+    border: platform.cardBorderColor,
+    notification: platform.brandDanger,
+  },
+};
 
-export const NAVIGATION_PERSISTENCE_KEY = 'NAVIGATION_STATE';
+const sagaMiddleware = createSagaMiddleware({
+  context: {
+    [APOLLO_CLIENT_CONTEXT]: apolloClient,
+    [STORAGE_CONTEXT]: AsyncStorage,
+  },
+});
 
-/**
- * This is the root component of our app.
- */
+const directorr = new Directorr();
+
+directorr.addMiddlewares(logMiddleware, showErrorSnackMiddleware);
+directorr.addReduxMiddlewares(sagaMiddleware);
+sagaMiddleware.run(rootSaga);
+
 function App() {
-  const navigationRef = useRef<NavigationContainerRef>();
-  const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined);
-
-  setRootNavigation(navigationRef);
-  useBackButtonHandler(navigationRef, canExit);
-  const { initialNavigationState, onNavigationStateChange } = useNavigationPersistence(
-    storage,
-    NAVIGATION_PERSISTENCE_KEY
-  );
-
-  // Kick off initial async loading actions, like loading fonts and RootStore
-  useEffect(() => {
-    (async () => {
-      setupRootStore().then(setRootStore);
-    })();
-  }, []);
-
-  // Before we show the app, we have to wait for our state to be ready.
-  // In the meantime, don't render anything. This will be the background
-  // color set in native by rootView's background color. You can replace
-  // with your own loading component if you wish.
-  if (!rootStore) return null;
-
-  // otherwise, we're ready to render the app
   return (
-    <RootStoreProvider value={rootStore}>
+    <DirectorrProvider value={directorr}>
       <SafeAreaProvider initialSafeAreaInsets={initialWindowSafeAreaInsets}>
-        <RootNavigator
-          ref={navigationRef}
-          initialState={initialNavigationState}
-          onStateChange={onNavigationStateChange}
-        />
+        <StyleProvider style={getTheme(platform)}>
+          <SnackbarContainer>
+            <NavigationRouterContainer theme={theme} linking={linking}>
+              <ModalBoxContainer MainNavigator={MainNavigator} />
+            </NavigationRouterContainer>
+          </SnackbarContainer>
+        </StyleProvider>
       </SafeAreaProvider>
-    </RootStoreProvider>
+    </DirectorrProvider>
   );
 }
 

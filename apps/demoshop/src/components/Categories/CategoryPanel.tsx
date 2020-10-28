@@ -1,14 +1,15 @@
 import React, { FC, memo } from 'react';
 import { observer } from 'mobx-react-lite';
-import { generatePath } from '@nimel/directorr-next';
+import { generatePath, convertColonToBracketParams } from '@nimel/directorr-next';
 import { styled } from '@material-ui/core/styles';
 import Link from 'next/link';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import { useStore } from '@nimel/directorr-react';
-import { CategoriesStore, Category } from '@demo/categories-store';
+// import { CategoriesStore, Category } from '@demo/categories-store';
 import { CATEGORY_URL } from '@demo/url';
+import CategoryPanelStore, { Category } from './CategoryPanel.store';
 
 const Container = styled(List)(({ theme }) => ({
   position: 'absolute',
@@ -24,7 +25,10 @@ interface CategoryItemProps {
 }
 
 const CategoryItem: FC<CategoryItemProps> = memo(({ category, selected }) => (
-  <Link href={CATEGORY_URL} as={generatePath(CATEGORY_URL, { categoryID: category.id })}>
+  <Link
+    href={convertColonToBracketParams(CATEGORY_URL)}
+    as={generatePath(CATEGORY_URL, { categoryID: category.id })}
+  >
     <ListItem button selected={selected}>
       <ListItemText primary={category.name} />
     </ListItem>
@@ -36,7 +40,7 @@ interface CategoryPanelProps {
 }
 
 export const CategoryPanel: FC<CategoryPanelProps> = ({ className }) => {
-  const { categories, currentCategoryID } = useStore(CategoriesStore);
+  const { categories, currentCategoryID } = useStore(CategoryPanelStore);
 
   if (!categories) return null;
 

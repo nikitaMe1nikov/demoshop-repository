@@ -26,6 +26,10 @@ const SIGN_CONFIG = {
 };
 const SUBSCRIPTION_NAME = 'cartChanged';
 
+function pickFilled(order: OrderData) {
+  return order.status === OrderStatus.FILLED;
+}
+
 @Resolver('Order')
 export default class OrdersResolvers {
   constructor(
@@ -60,8 +64,9 @@ export default class OrdersResolvers {
     if (!user) throw new UnauthorizedException(ERROR_CODE_MESSAGES.NOT_LOGIN);
 
     const userDB = await this.users.whereId(user.sub);
+    const orders = await this.orders.whereIds(userDB.orders);
 
-    return this.orders.whereIds(userDB.orders);
+    return orders.filter(pickFilled);
   }
 
   @ResolveField('products')

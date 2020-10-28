@@ -18,3 +18,6 @@ export const [actionLoadMore, effectLoadMore] = createActionAndEffect<void>(
 export const [actionSetPage, effectSetPage] = createActionAndEffect<PagePayload>(
   'PRODUCTS.SET_PAGE_PRODUCTS'
 );
+export const [actionUpdateProducts, effectUpdateProduct] = createActionAndEffect(
+  'PRODUCTS.UPDATE_PRODUCTS'
+);

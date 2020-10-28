@@ -22,7 +22,8 @@ type Product {
   price: Int!
   category: Category!
   favorite: Boolean!
-  description: String!
+  description: String
+  recomendations: [Product!]
 }
 
 enum ProductsSort {

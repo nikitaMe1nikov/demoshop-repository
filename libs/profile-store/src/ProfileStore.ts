@@ -1,14 +1,14 @@
 import { computed } from 'mobx';
-import {
-  action,
-  effect,
-  injectStore,
-  connectStore,
-  whenInit,
-  DirectorrStoreClass,
-} from '@nimel/directorr';
+import { effect, injectStore, connectStore, whenInit, DirectorrStoreClass } from '@nimel/directorr';
 import { object, string } from 'yup';
-import { FormStore, FORM_ACTIONS, validate, validateAll } from '@nimel/directorr-form';
+import {
+  FormStore,
+  actionFormChangeValue,
+  actionFormSubmit,
+  validate,
+  validateAll,
+  validatePayload,
+} from '@nimel/directorr-form';
 import { UserStore } from '@demo/user-store';
 
 const VALIDATION_SCHEME = object().shape({
@@ -34,16 +34,17 @@ export class ProfileStore implements DirectorrStoreClass {
 
   logout = () => this.user.logout();
 
-  @action([FormStore, FORM_ACTIONS.SUBMIT])
-  saveProfile = () => {};
+  saveProfile = () => {
+    this.toSaveProfile({});
+  };
 
-  @effect([FormStore, FORM_ACTIONS.CHANGE_VALUE])
+  @effect([FormStore, actionFormChangeValue.type])
   @validate(VALIDATION_SCHEME)
   changeProfile = () => {};
 
-  @effect([FormStore, FORM_ACTIONS.SUBMIT])
+  @effect([FormStore, actionFormSubmit.type])
   @validateAll(VALIDATION_SCHEME)
-  toSaveProfile = ({ validationError }) => {
+  toSaveProfile = ({ validationError }: validatePayload) => {
     if (!validationError)
       this.user.saveProfile(this.email.value, this.name.value, this.surname.value);
   };

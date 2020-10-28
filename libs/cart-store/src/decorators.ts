@@ -9,3 +9,4 @@ export const [actionSetSort, effectSetSort] = createActionAndEffect<SortPayload>
   'CART.SET_CURRENT_SORT'
 );
 export const [actionSetCart, effectSetCart] = createActionAndEffect<Order>('CART.SET_CART');
+export const [actionUpdateCart, effectUpdateCart] = createActionAndEffect('CART.UPDATE');

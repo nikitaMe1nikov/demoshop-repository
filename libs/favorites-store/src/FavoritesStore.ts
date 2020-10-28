@@ -12,7 +12,7 @@ import {
   FETCH_POLICY,
 } from '@demo/sagas';
 import { PRODUCT_FRAGMENT } from '@demo/catalog-store';
-import { actionOpenModal, ModalBoxPayload } from '@demo/modal-box-store';
+import { actionOpenModal, ModalBoxPayload } from '@demo/modal-box';
 
 const FAVORITES_PRODUCTS_QUERY = gql`
   query {

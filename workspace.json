@@ -257,9 +257,9 @@
         }
       }
     },
-    "snackbar-store": {
-      "root": "libs/snackbar-store",
-      "sourceRoot": "libs/snackbar-store/src",
+    "snackbar": {
+      "root": "libs/snackbar",
+      "sourceRoot": "libs/snackbar/src",
       "projectType": "library",
       "schematics": {},
       "architect": {
@@ -267,19 +267,19 @@
           "builder": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
-            "config": "libs/snackbar-store/.eslintrc",
+            "config": "libs/snackbar/.eslintrc",
             "tsConfig": [
-              "libs/snackbar-store/tsconfig.lib.json",
-              "libs/snackbar-store/tsconfig.spec.json"
+              "libs/snackbar/tsconfig.lib.json",
+              "libs/snackbar/tsconfig.spec.json"
             ],
-            "exclude": ["**/node_modules/**", "!libs/snackbar-store/**"]
+            "exclude": ["**/node_modules/**", "!libs/snackbar/**"]
           }
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "options": {
-            "jestConfig": "libs/snackbar-store/jest.config.js",
-            "tsConfig": "libs/snackbar-store/tsconfig.spec.json",
+            "jestConfig": "libs/snackbar/jest.config.js",
+            "tsConfig": "libs/snackbar/tsconfig.spec.json",
             "passWithNoTests": true
           }
         }
@@ -397,9 +397,9 @@
         }
       }
     },
-    "modal-box-store": {
-      "root": "libs/modal-box-store",
-      "sourceRoot": "libs/modal-box-store/src",
+    "modal-box": {
+      "root": "libs/modal-box",
+      "sourceRoot": "libs/modal-box/src",
       "projectType": "library",
       "schematics": {},
       "architect": {
@@ -407,19 +407,19 @@
           "builder": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
-            "config": "libs/modal-box-store/.eslintrc",
+            "config": "libs/modal-box/.eslintrc",
             "tsConfig": [
-              "libs/modal-box-store/tsconfig.lib.json",
-              "libs/modal-box-store/tsconfig.spec.json"
+              "libs/modal-box/tsconfig.lib.json",
+              "libs/modal-box/tsconfig.spec.json"
             ],
-            "exclude": ["**/node_modules/**", "!libs/modal-box-store/**"]
+            "exclude": ["**/node_modules/**", "!libs/modal-box/**"]
           }
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "options": {
-            "jestConfig": "libs/modal-box-store/jest.config.js",
-            "tsConfig": "libs/modal-box-store/tsconfig.spec.json",
+            "jestConfig": "libs/modal-box/jest.config.js",
+            "tsConfig": "libs/modal-box/tsconfig.spec.json",
             "passWithNoTests": true
           }
         }
@@ -616,6 +616,60 @@
           "options": {
             "jestConfig": "libs/notifications-store/jest.config.js",
             "tsConfig": "libs/notifications-store/tsconfig.spec.json",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "constants": {
+      "root": "libs/constants",
+      "sourceRoot": "libs/constants/src",
+      "projectType": "library",
+      "schematics": {},
+      "architect": {
+        "lint": {
+          "builder": "@nrwl/linter:lint",
+          "options": {
+            "linter": "eslint",
+            "config": "libs/constants/.eslintrc",
+            "tsConfig": [
+              "libs/constants/tsconfig.lib.json",
+              "libs/constants/tsconfig.spec.json"
+            ],
+            "exclude": ["**/node_modules/**", "!libs/constants/**"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "libs/constants/jest.config.js",
+            "tsConfig": "libs/constants/tsconfig.spec.json",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "orders-store": {
+      "root": "libs/orders-store",
+      "sourceRoot": "libs/orders-store/src",
+      "projectType": "library",
+      "schematics": {},
+      "architect": {
+        "lint": {
+          "builder": "@nrwl/linter:lint",
+          "options": {
+            "tsConfig": [
+              "libs/orders-store/tsconfig.lib.json",
+              "libs/orders-store/tsconfig.spec.json"
+            ],
+            "exclude": ["**/node_modules/**", "!libs/orders-store/**"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "libs/orders-store/jest.config.js",
+            "tsConfig": "libs/orders-store/tsconfig.spec.json",
             "passWithNoTests": true
           }
         }

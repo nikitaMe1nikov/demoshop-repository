@@ -5,7 +5,7 @@ import {
   actionGQLSubscriptionError,
   GQLPayload,
 } from '@demo/sagas';
-import { actionShowErrorSnack } from '@demo/snackbar-store';
+import { actionShowErrorSnack } from '@demo/snackbar';
 
 function calcMessage(error: any) {
   if (error.networkError) return 'network error';

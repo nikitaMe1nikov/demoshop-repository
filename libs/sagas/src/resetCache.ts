@@ -14,6 +14,6 @@ function* waitResetCache() {
   yield put(createAction(actionGQLResetCacheSuccess.type));
 }
 
-export default function* resetCache() {
+export function* resetCache() {
   yield takeEvery(actionGQLResetCache.type, waitResetCache);
 }

@@ -1,9 +1,9 @@
 import { fork } from 'redux-saga/effects';
-import query from './query';
-import mutation from './mutation';
-import subscription from './subscription';
-import resetCache from './resetCache';
-import delayAction from './delayAction';
+import { query } from './query';
+import { mutation } from './mutation';
+import { subscription } from './subscription';
+import { resetCache } from './resetCache';
+import { delayAction } from './delayAction';
 
 import { isBrowser } from '@demo/env';
 

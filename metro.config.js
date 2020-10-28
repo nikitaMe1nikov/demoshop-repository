@@ -13,7 +13,7 @@ module.exports = {
   },
   watchFolders: [
     path.resolve(__dirname, './node_modules'),
-    // path.resolve(__dirname, './libs'),
+    path.resolve(__dirname, './libs'),
   ],
   transformer: {
     getTransformOptions: async () => ({

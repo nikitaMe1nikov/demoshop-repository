@@ -1,4 +1,4 @@
-import { actionOpenModal, actionCloseModal } from '@demo/modal-box-store';
+import { actionOpenModal, actionCloseModal } from '@demo/modal-box';
 import { effectLoginSuccess, effectSignupSuccess } from '@demo/user-store';
 import ModalAuth from '@demoshop/components/Auth';
 

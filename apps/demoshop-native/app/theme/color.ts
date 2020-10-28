@@ -1,4 +1,4 @@
-import { palette } from "./palette"
+import { palette } from './palette';
 
 /**
  * Roles for colors.  Prefer using these over the palette.  It makes it easier
@@ -19,7 +19,7 @@ export const color = {
    * can cause older Android devices to slow down due to the excessive compositing required
    * by their under-powered GPUs.
    */
-  transparent: "rgba(0, 0, 0, 0)",
+  transparent: 'rgba(0, 0, 0, 0)',
   /**
    * The screen background.
    */
@@ -27,15 +27,15 @@ export const color = {
   /**
    * The main tinting color.
    */
-  primary: palette.orange,
+  primary: palette.defaultPrimary,
   /**
    * The main tinting color, but darker.
    */
-  primaryDarker: palette.orangeDarker,
+  primaryDarker: palette.darkPrimary,
   /**
    * A subtle color used for borders and lines.
    */
-  line: palette.offWhite,
+  line: palette.divider,
   /**
    * The default color of text in many components.
    */
@@ -43,7 +43,7 @@ export const color = {
   /**
    * Secondary information.
    */
-  dim: palette.lightGrey,
+  dim: palette.secondaryText,
   /**
    * Error messages and icons.
    */
@@ -61,4 +61,4 @@ export const color = {
    * white background
    */
   storybookTextColor: palette.black,
-}
+};

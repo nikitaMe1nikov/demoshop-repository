@@ -16,6 +16,7 @@ import {
   APOLLO_CONTEXT,
   DEFAULT_ERROR_POLICY,
   WAIT_RESPONSE_TIMEOUT,
+  FETCH_POLICY,
 } from './constants';
 import {
   actionGQLMutation,
@@ -55,7 +56,9 @@ function* waitMutationChannel() {
   while (true) {
     const { payload } = yield take(channel);
 
-    yield delay(WAIT_RESPONSE_TIMEOUT);
+    if (payload.fetchPolicy !== FETCH_POLICY.NETWORK_ONLY) {
+      yield delay(WAIT_RESPONSE_TIMEOUT);
+    }
 
     yield put(createAction(actionGQLMutationLoading.type, payload));
   }
@@ -71,7 +74,7 @@ function* getMutationLoading() {
   }
 }
 
-export default function* mutation() {
+export function* mutation() {
   yield takeEvery(actionGQLMutation.type, mutateQuery);
   yield fork(getMutationLoading);
 }

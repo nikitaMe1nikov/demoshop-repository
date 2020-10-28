@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import DataLoader from 'dataloader';
-import { PRODUCTS } from '@api/db';
+import { PRODUCTS, ProductData } from '@api/db';
 
 @Injectable()
 export default class ProductsService {
@@ -17,6 +17,6 @@ export default class ProductsService {
   }
 
   whereIds(ids: string[]) {
-    return this.idsBatcher.loadMany(ids);
+    return (this.idsBatcher.loadMany(ids) as unknown) as Promise<ProductData[]>;
   }
 }

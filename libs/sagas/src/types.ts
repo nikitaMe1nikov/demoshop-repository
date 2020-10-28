@@ -12,3 +12,5 @@ export interface DelayActionPayload<P = any> {
   wait: number;
   nextAction: { type: string; payload?: P };
 }
+
+export type Variables = OperationVariables;

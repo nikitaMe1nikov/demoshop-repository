@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./src",
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
@@ -12,10 +11,8 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
-    "sourceMap": true,
     "target": "esnext",
-    "lib": ["esnext"],
-    "skipLibCheck": true
+    "lib": ["esnext"]
   },
   "exclude": ["node_modules"],
   "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", "index.js", "app", "test", "storybook"]

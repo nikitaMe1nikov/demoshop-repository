@@ -2,7 +2,7 @@ import { FC, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@nimel/directorr-react';
 import { useSnackbar } from 'notistack';
-import { SnackbarStore } from '@demo/snackbar-store';
+import SnackbarStore from './SnackbarStore';
 
 export const Snackbars: FC = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();

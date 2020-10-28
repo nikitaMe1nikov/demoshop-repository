@@ -127,7 +127,8 @@ export class Product {
     price: number;
     category: Category;
     favorite: boolean;
-    description: string;
+    description?: string;
+    recomendations?: Product[];
 }
 
 export class Order {

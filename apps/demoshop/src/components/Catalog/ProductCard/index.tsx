@@ -10,7 +10,7 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import ProductAmountButton from '@demoshop/components/Cart/ProductAmountButton';
 import FavoriteIcon from '@demoshop/components/Catalog/ProductCard/FavoriteIcon';
 import { DOL } from '@demoshop/components/constants';
-import { Product } from '@demoshop/components/Catalog/CatalogStore';
+import { Product } from '@demo/catalog-store';
 
 export const HEIGHT = 323;
 

@@ -1,6 +1,5 @@
 import { observable, computed, ObservableMap } from 'mobx';
 import {
-  injectStore,
   whenInit,
   whenReload,
   whenPayload,
@@ -8,7 +7,11 @@ import {
   DirectorrStoreClass,
 } from '@nimel/directorr';
 import gql from 'graphql-tag';
-import { NextHistoryStore, historyChange, HistoryChangeActionPayload } from '@nimel/directorr-next';
+import {
+  historyChange,
+  HistoryChangeActionPayload,
+  actionRouterPush,
+} from '@nimel/directorr-router';
 import { Product as ProductType, Order } from '@demo/gql-schema';
 import {
   actionGQLQuery,
@@ -21,12 +24,20 @@ import {
   effectGQLMutationError,
   FETCH_POLICY,
   GQLPayload,
+  Variables,
 } from '@demo/sagas';
 import { CART_URL, ROOT_URL } from '@demo/url';
-import { actionShowInfoSnack } from '@demo/snackbar-store';
+import { actionShowInfoSnack } from '@demo/snackbar';
 import i18n from '@demo/i18n';
-import { actionOpenModal, ModalBoxPayload } from '@demo/modal-box-store';
-import { actionSetSort, effectSetSort, effectSetCart, SortPayload } from './decorators';
+// import { actionOpenModal, ModalBoxPayload } from '@demo/modal-box';
+import {
+  actionSetSort,
+  effectSetSort,
+  effectSetCart,
+  SortPayload,
+  actionUpdateCart,
+  effectUpdateCart,
+} from './decorators';
 
 enum ProductsSort {
   ALPHABET,
@@ -45,9 +56,9 @@ export const ORDER_FRAGMENT = gql`
       price
       amount
       favorite
-      category {
-        name
-      }
+      # category {
+      #   name
+      # }
     }
   }
 `;
@@ -93,8 +104,8 @@ const FILL_CART_MUTATION = gql`
     fillCart {
       ...OrderFragment
     }
-    ${ORDER_FRAGMENT}
   }
+  ${ORDER_FRAGMENT}
 `;
 
 export type Product = Pick<
@@ -114,11 +125,10 @@ export class CartStore implements DirectorrStoreClass {
   @observable.shallow isLoadingChange = new Map<string, null>();
   @observable.shallow isLoadingDeleting = new Map<string, null>();
   @observable isLoading = true;
-  @observable isLoadingFill = true;
+  @observable isLoadingFill = false;
+  @observable isUpdating = false;
   @observable currentSort: ProductsSort = ProductsSort.ALPHABET;
   sortList = Object.keys(ProductsSort);
-
-  @injectStore(NextHistoryStore) router: NextHistoryStore;
 
   @computed get sortProducts() {
     const products = [...this.productsMap.values()];
@@ -143,20 +153,28 @@ export class CartStore implements DirectorrStoreClass {
   };
 
   // @actionOpenModal
-  // showProductDetailsModal = (productID: string) => ({
-  //   component: ProductDetailsModal,
+  // showProductDetailsModal = (productID: string, component: ModalBoxPayload['component']) => ({
+  //   component,
   //   props: { productID },
   // });
 
-  @actionOpenModal
-  showProductDetailsModal = (productID: string, component: ModalBoxPayload['component']) => ({
-    component,
-    props: { productID },
-  });
+  @actionUpdateCart
+  update = () => {};
+
+  @effectUpdateCart
+  toUpdateCart = () => {
+    this.getCart({
+      update: true,
+    });
+  };
 
   @whenReload
   @actionGQLQuery
-  getCart = () => ({ query: CART_QUERY, fetchPolicy: FETCH_POLICY.NETWORK_ONLY });
+  getCart = (variables?: Variables) => ({
+    query: CART_QUERY,
+    fetchPolicy: FETCH_POLICY.NETWORK_ONLY,
+    variables,
+  });
 
   @actionGQLMutation
   addToCart = (productID: string) => ({
@@ -228,15 +246,18 @@ export class CartStore implements DirectorrStoreClass {
 
   @effectGQLMutationSuccess
   @whenPayload({ query: FILL_CART_MUTATION })
+  @actionRouterPush
   toFillCart = () => {
     this.getCart();
 
-    this.router.push(ROOT_URL);
+    return {
+      path: ROOT_URL,
+    };
   };
 
   @effectGQLMutationLoading
-  @effectGQLQuerySuccess
-  @effectGQLQueryError
+  @effectGQLMutationSuccess
+  @effectGQLMutationError
   @whenPayload({ query: FILL_CART_MUTATION })
   waitFillLoadingCart = ({ data, errors }: GQLPayload) => {
     this.isLoadingFill = !(data || errors);
@@ -274,18 +295,23 @@ export class CartStore implements DirectorrStoreClass {
   @effectGQLQuerySuccess
   @effectGQLQueryError
   @whenPayload({ query: CART_QUERY })
-  waitLoadingCart = ({ data, errors }: GQLPayload) => {
-    this.isLoading = !(data || errors);
+  waitLoadingCart = ({ data, errors, variables }: GQLPayload) => {
+    if (data || errors) {
+      this.isLoading = false;
+      this.isUpdating = false;
+    } else if (variables?.update) {
+      this.isUpdating = true;
+    }
   };
 
   @whenInit
-  protected toInit = () => {
+  toInit = () => {
     if (!this.isReady) this.getCart();
   };
 
   @historyChange(CART_URL)
   toRouteChange = ({ match }: HistoryChangeActionPayload) => {
-    if (match) this.getCart();
+    if (match) this.update();
   };
 
   get isReady() {

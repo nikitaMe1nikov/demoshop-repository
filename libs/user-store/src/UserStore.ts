@@ -1,14 +1,7 @@
 import { observable, computed } from 'mobx';
-import {
-  injectStore,
-  whenInit,
-  whenReload,
-  whenPayload,
-  reloadAction,
-  propOneOf,
-} from '@nimel/directorr';
+import { whenInit, whenReload, whenPayload, reloadAction, propOneOf } from '@nimel/directorr';
 import gql from 'graphql-tag';
-import { NextHistoryStore } from '@nimel/directorr-next';
+import { actionRouterPush } from '@nimel/directorr-router';
 import { User as UserType, UserRole } from '@demo/gql-schema';
 import {
   actionGQLQuery,
@@ -23,8 +16,7 @@ import {
   effectGQLResetCacheSuccess,
   GQLPayload,
 } from '@demo/sagas';
-import { ROOT_URL } from '@demo/url';
-import { actionShowSuccessSnack } from '@demo/snackbar-store';
+import { actionShowSuccessSnack } from '@demo/snackbar';
 import {
   actionLoginSuccess,
   actionLoginError,
@@ -115,11 +107,11 @@ const getError = ({ errors: [error] }: GQLPayload) => ({
 
 export class UserStore {
   @observable.ref user?: UserType;
-  @observable isLoading = false;
+  @observable isLoading = true;
+  @observable isLoadingLogin = false;
+  @observable isLoadingSignup = false;
   @observable isLoadingSaveProfile = false;
   @observable isLoadingLogout = false;
-
-  @injectStore(NextHistoryStore) router: NextHistoryStore;
 
   @computed get isAnonim() {
     return !this.user || this.user.roles.includes(UserRole.ANONIM);
@@ -159,10 +151,23 @@ export class UserStore {
   @effectGQLMutationLoading
   @effectGQLMutationSuccess
   @effectGQLMutationError
+  @whenPayload({ query: LOGIN_MUTATION })
+  loadingLogin = ({ data, errors }: GQLPayload) => {
+    this.isLoadingLogin = !(data || errors);
+  };
+
+  @effectGQLMutationLoading
+  @effectGQLMutationSuccess
+  @effectGQLMutationError
+  @whenPayload({ query: SIGNUP_MUTATION })
+  loadingSignup = ({ data, errors }: GQLPayload) => {
+    this.isLoadingSignup = !(data || errors);
+  };
+
   @effectGQLQueryLoading
   @effectGQLQuerySuccess
   @effectGQLQueryError
-  @whenPayload({ query: propOneOf([USER_QUERY, LOGIN_MUTATION, SIGNUP_MUTATION]) })
+  @whenPayload({ query: USER_QUERY })
   loading = ({ data, errors }: GQLPayload) => {
     this.isLoading = !(data || errors);
   };
@@ -188,9 +193,12 @@ export class UserStore {
   @whenPayload({ query: LOGOUT_MUTATION })
   @actionLogoutSuccess
   @actionGQLResetCache
-  whenLogout = ({ data: { logout } }: GQLPayload) => {
-    if (logout) this.router.push(ROOT_URL);
-  };
+  whenLogout = () => {};
+
+  @actionRouterPush
+  push = (path: string) => ({
+    path,
+  });
 
   @effectGQLMutationError
   @whenPayload({ query: LOGOUT_MUTATION })

@@ -1,0 +1,133 @@
+type Query {
+  categories: [Category!]!
+  category(id: String): Category!
+  banners: [Banner!]!
+  cart: Order!
+  orders: [Order!]
+  products(categoryID: String!, sort: ProductsSort = PriceASC, first: Int = 30, after: Int = 0): Products!
+  favorites: [Product!]!
+  product(id: String): Product!
+  me: User!
+}
+
+type Category {
+  id: ID!
+  name: String!
+}
+
+type Banner {
+  id: ID!
+  name: String!
+  description: String!
+  images: Image!
+}
+
+type Image {
+  small: String!
+  medium: String!
+  big: String!
+}
+
+directive @auth(role: UserRole = USER) on FIELD_DEFINITION
+
+enum UserRole {
+  ANONIM
+  USER
+  ADMIN
+}
+
+type Mutation {
+  addToCart(productID: String!): Order!
+  removeFromCart(productID: String!): Order!
+  deleteFromCart(productID: String!): Order!
+  fillCart: Order!
+  addFavorite(id: String): Product!
+  removeFavorite(id: String): Product!
+  signup(userSignupInput: UserSignupInput!): User!
+  login(userLoginInput: UserLoginInput!): User!
+  logout: Boolean
+  saveProfile(userInfoInput: UserInfoInput): User!
+}
+
+type Subscription {
+  cartChanged(userID: String!): CartChangedEvent!
+}
+
+type CartChangedEvent {
+  order: Order!
+  date: DateTime!
+}
+
+type Product {
+  amount: Int!
+  id: ID!
+  name: String!
+  price: Int!
+  category: Category!
+  favorite: Boolean!
+  description: String
+  recomendations: [Product!]
+}
+
+type Order {
+  id: ID!
+  status: OrderStatus!
+  total: Int!
+  price: Int!
+  discount: Int!
+  products: [Product]!
+  totalByID: [String]!
+}
+
+enum OrderStatus {
+  CREATED
+  FILLED
+  COMPLATED
+}
+
+type Products {
+  nodes: [Product!]!
+  total: Int!
+  endCursor: Int!
+  hasNextPage: Boolean!
+}
+
+enum ProductsSort {
+  PriceASC
+  PriceDSC
+}
+
+scalar DateTime
+
+type User {
+  id: ID!
+  email: String!
+  name: String!
+  surname: String!
+  roles: [UserRole!]!
+  activeOrders: [Order!]!
+}
+
+input UserSignupInput {
+  email: String! @constraint(format: "email")
+  password: String! @constraint(minLength: 8)
+  name: String! @constraint(minLength: 4, maxLength: 40)
+  surname: String @constraint(minLength: 0, maxLength: 40)
+}
+
+input UserLoginInput {
+  email: String! @constraint(format: "email")
+  password: String! @constraint(minLength: 8)
+}
+
+input UserInfoInput {
+  email: String! @constraint(format: "email")
+  name: String! @constraint(minLength: 4, maxLength: 40)
+  surname: String @constraint(minLength: 0, maxLength: 40)
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}

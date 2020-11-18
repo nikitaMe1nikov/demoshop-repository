@@ -11,19 +11,19 @@ import {
   effectDeleteModal,
 } from '@demo/modal-box';
 
-export class ModalBoxStore {
+export class MaterialModalStore {
   @observable.shallow modals = new Map<ComponentType<ModalBoxComponentProps>, ReactElement>();
 
   @effectOpenModal
-  toOpen = (payload: ModalBoxPayload) => {
+  toOpen = ({ component, props }: ModalBoxPayload) => {
     this.modals.set(
-      payload.component,
-      createElement(payload.component, {
-        ...payload.props,
-        key: `${payload.component}`,
+      component,
+      createElement(component, {
+        ...props,
+        key: `${component}`,
         open: true,
-        onClose: () => this.close(payload.component, payload.props),
-        onExited: () => this.delete(payload.component),
+        onClose: () => this.close(component, props),
+        onExited: () => this.delete(component),
       })
     );
   };
@@ -35,14 +35,14 @@ export class ModalBoxStore {
   });
 
   @effectCloseModal
-  toClose = (payload: ModalBoxPayload) => {
+  toClose = ({ component, props }: ModalBoxPayload) => {
     this.modals.set(
-      payload.component,
-      createElement(payload.component, {
-        ...payload.props,
-        key: `${payload.component}`,
+      component,
+      createElement(component, {
+        ...props,
+        key: `${component}`,
         open: false,
-        onExited: () => this.delete(payload.component),
+        onExited: () => this.delete(component),
       })
     );
   };
@@ -56,4 +56,4 @@ export class ModalBoxStore {
   };
 }
 
-export default ModalBoxStore;
+export default MaterialModalStore;

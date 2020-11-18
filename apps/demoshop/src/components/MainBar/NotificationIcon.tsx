@@ -17,11 +17,11 @@ import { dateToTime } from '@demoshop/utils/format';
 
 const useStyles = makeStyles((theme) => ({
   container: (viewed) =>
-    !viewed && {
+    viewed && {
       background: theme.palette.grey[100],
     },
   text: (viewed) =>
-    !viewed && {
+    viewed && {
       fontWeight: 700,
     },
   date: {

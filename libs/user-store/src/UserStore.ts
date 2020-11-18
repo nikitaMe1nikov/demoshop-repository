@@ -1,120 +1,44 @@
 import { observable, computed } from 'mobx';
-import { whenInit, whenReload, whenPayload, reloadAction, propOneOf } from '@nimel/directorr';
-import gql from 'graphql-tag';
-import { actionRouterPush } from '@nimel/directorr-router';
-import { User as UserType, UserRole } from '@demo/gql-schema';
-import {
-  actionGQLQuery,
-  effectGQLQuerySuccess,
-  effectGQLQueryLoading,
-  effectGQLQueryError,
-  actionGQLMutation,
-  effectGQLMutationSuccess,
-  effectGQLMutationLoading,
-  effectGQLMutationError,
-  actionGQLResetCache,
-  effectGQLResetCacheSuccess,
-  GQLPayload,
-} from '@demo/sagas';
+import { whenInit, whenReload, reloadAction, injectStore } from '@nimel/directorr';
+import { RootStore, RootStoreType, UserRole, selectFromUser, UserModelType } from '@demo/mst-gql';
 import { actionShowSuccessSnack } from '@demo/snackbar';
 import {
-  actionLoginSuccess,
-  actionLoginError,
-  actionSignupSuccess,
-  actionSignupError,
-  actionLogoutSuccess,
-  actionLogoutError,
-  actionSaveProfileSuccess,
-  actionSaveProfileError,
+  actionSetUser,
+  effectSetUser,
+  SetUserPayload,
+  actionUserChange,
+  actionUserLogin,
+  effectUserLogin,
+  UserLoginPayload,
+  actionEndLoading,
+  effectEndLoading,
+  actionUserSignup,
+  effectUserSignup,
+  UserSignupPayload,
+  actionUserLogout,
+  effectUserLogout,
+  actionUserSaveProfile,
+  effectUserSaveProfile,
+  UserSaveProfilePayload,
 } from './decorators';
 import i18n from '@demo/i18n';
 
-const USER_FRAGMENT = gql`
-  fragment UserFragment on User {
-    id
-    email
-    name
-    surname
-    roles
-    favorites {
-      id
-      name
-      price
-      favorite
-    }
-  }
-`;
-
-const USER_QUERY = gql`
-  query {
-    me {
-      ...UserFragment
-    }
-  }
-  ${USER_FRAGMENT}
-`;
-
-const LOGIN_MUTATION = gql`
-  mutation Login(
-    $email: email_String_NotNull_format_email!
-    $password: password_String_NotNull_minLength_8!
-  ) {
-    login(userLoginInput: { email: $email, password: $password }) {
-      ...UserFragment
-    }
-  }
-  ${USER_FRAGMENT}
-`;
-
-const SIGNUP_MUTATION = gql`
-  mutation Signup(
-    $email: email_String_NotNull_format_email!
-    $password: password_String_NotNull_minLength_8!
-    $name: name_String_NotNull_minLength_4_maxLength_40!
-    $surname: surname_String_minLength_0_maxLength_40
-  ) {
-    signup(
-      userSignupInput: { email: $email, password: $password, name: $name, surname: $surname }
-    ) {
-      ...UserFragment
-    }
-  }
-  ${USER_FRAGMENT}
-`;
-
-const LOGOUT_MUTATION = gql`
-  mutation Logout {
-    logout
-  }
-`;
-
-const SAVE_PROFILE_MUTATION = gql`
-  mutation SaveProfile(
-    $email: email_String_NotNull_format_email!
-    $name: name_String_NotNull_minLength_4_maxLength_40!
-    $surname: surname_String_minLength_0_maxLength_40
-  ) {
-    saveProfile(userInfoInput: { email: $email, name: $name, surname: $surname }) {
-      ...UserFragment
-    }
-  }
-  ${USER_FRAGMENT}
-`;
-
-const getError = ({ errors: [error] }: GQLPayload) => ({
-  message: error.message,
-});
+export const USER_QUERY = selectFromUser().email.name.surname.roles.toString();
 
 export class UserStore {
-  @observable.ref user?: UserType;
-  @observable isLoading = true;
+  @injectStore(RootStore) rootStore: RootStoreType;
+  @observable.ref user?: UserModelType;
+  @observable isLoadingSaveProfile = false;
   @observable isLoadingLogin = false;
   @observable isLoadingSignup = false;
-  @observable isLoadingSaveProfile = false;
   @observable isLoadingLogout = false;
 
+  @computed get isLoading() {
+    return !this.user;
+  }
+
   @computed get isAnonim() {
-    return !this.user || this.user.roles.includes(UserRole.ANONIM);
+    return !!this.user?.roles?.includes(UserRole.ANONIM);
   }
 
   @computed get isLogin() {
@@ -122,154 +46,114 @@ export class UserStore {
   }
 
   @whenReload
-  @actionGQLQuery
-  getUser = () => ({ query: USER_QUERY });
+  @whenInit
+  getUser = () => {
+    const { data, promise } = this.rootStore.qMe({}, USER_QUERY);
 
-  @actionGQLMutation
-  login = (email: string, password: string) => ({
-    query: LOGIN_MUTATION,
-    variables: { email, password },
-  });
+    if (data?.me && !this.isReady) {
+      this.whenHaveUser(data);
+    }
 
-  @actionGQLMutation
+    promise.tap(this.whenHaveUser);
+  };
+
+  @actionSetUser
+  whenHaveUser = ({ me }: { me: UserModelType }) => ({ user: me });
+
+  @effectSetUser
+  setUser = ({ user }: SetUserPayload) => {
+    this.user = user;
+  };
+
+  @actionUserChange
+  @reloadAction
+  whenChangeUser = () => {};
+
+  @actionUserLogin
+  login = (email: string, password: string) => ({ email, password });
+
+  @effectUserLogin
+  toLogin = ({ email, password }: UserLoginPayload) => {
+    this.isLoadingLogin = true;
+
+    const { promise } = this.rootStore.mLogin({ userLoginInput: { email, password } }, USER_QUERY);
+
+    promise.tap(this.whenChangeUser).tap(this.doneLoading).tap(this.showLoginSuccessSnack);
+  };
+
+  @actionUserSignup
   signup = (email: string, password: string, name: string, surname?: string) => ({
-    query: SIGNUP_MUTATION,
-    variables: { email, password, name, surname },
+    email,
+    password,
+    name,
+    surname,
   });
 
-  @actionGQLMutation
-  logout = () => ({
-    query: LOGOUT_MUTATION,
-  });
+  @effectUserSignup
+  toSignup = ({ email, password, name, surname }: UserSignupPayload) => {
+    this.isLoadingSignup = true;
 
-  @actionGQLMutation
-  saveProfile = (email: string, name: string, surname?: string) => ({
-    query: SAVE_PROFILE_MUTATION,
-    variables: { email, name, surname },
-  });
+    const { promise } = this.rootStore.mSignup(
+      { userSignupInput: { email, password, name, surname } },
+      USER_QUERY
+    );
 
-  @effectGQLMutationLoading
-  @effectGQLMutationSuccess
-  @effectGQLMutationError
-  @whenPayload({ query: LOGIN_MUTATION })
-  loadingLogin = ({ data, errors }: GQLPayload) => {
-    this.isLoadingLogin = !(data || errors);
+    promise.tap(this.whenChangeUser).tap(this.doneLoading).tap(this.showSignupSuccessSnack);
   };
 
-  @effectGQLMutationLoading
-  @effectGQLMutationSuccess
-  @effectGQLMutationError
-  @whenPayload({ query: SIGNUP_MUTATION })
-  loadingSignup = ({ data, errors }: GQLPayload) => {
-    this.isLoadingSignup = !(data || errors);
+  @actionUserLogout
+  logout = () => {};
+
+  @effectUserLogout
+  toLogout = () => {
+    this.isLoadingLogout = true;
+
+    const { promise } = this.rootStore.mLogout({});
+
+    promise.tap(this.whenChangeUser).tap(this.doneLoading).tap(this.showLogoutSuccessSnack);
   };
 
-  @effectGQLQueryLoading
-  @effectGQLQuerySuccess
-  @effectGQLQueryError
-  @whenPayload({ query: USER_QUERY })
-  loading = ({ data, errors }: GQLPayload) => {
-    this.isLoading = !(data || errors);
+  @actionUserSaveProfile
+  saveProfile = (email: string, name: string, surname?: string) => ({ email, name, surname });
+
+  @effectUserSaveProfile
+  toSaveProfile = ({ email, name, surname }: UserSaveProfilePayload) => {
+    this.isLoadingSaveProfile = true;
+
+    const { promise } = this.rootStore.mSaveProfile(
+      { userInfoInput: { email, name, surname } },
+      USER_QUERY
+    );
+
+    promise.tap(this.doneLoading).tap(this.showSaveProfileSuccessSnack);
   };
 
-  @effectGQLQuerySuccess
-  @effectGQLMutationSuccess
-  @whenPayload({
-    query: propOneOf([USER_QUERY, SAVE_PROFILE_MUTATION]),
-  })
-  setUser = ({ data: { me, saveProfile } }: GQLPayload) => {
-    this.user = me || saveProfile;
+  @actionEndLoading
+  doneLoading = () => {};
+
+  @effectEndLoading
+  toDoneLoading = () => {
+    this.isLoadingLogin = false;
+    this.isLoadingSignup = false;
+    this.isLoadingLogout = false;
+    this.isLoadingSaveProfile = false;
   };
 
-  @effectGQLMutationLoading
-  @effectGQLMutationSuccess
-  @effectGQLMutationError
-  @whenPayload({ query: LOGOUT_MUTATION })
-  loadingLogout = ({ data, errors }: GQLPayload) => {
-    this.isLoadingLogout = !(data || errors);
-  };
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: LOGOUT_MUTATION })
-  @actionLogoutSuccess
-  @actionGQLResetCache
-  whenLogout = () => {};
-
-  @actionRouterPush
-  push = (path: string) => ({
-    path,
-  });
-
-  @effectGQLMutationError
-  @whenPayload({ query: LOGOUT_MUTATION })
-  @actionLogoutError
-  errorLogout = getError;
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: LOGIN_MUTATION })
-  @actionLoginSuccess
-  @actionGQLResetCache
-  successLogin = () => {};
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: LOGIN_MUTATION })
   @actionShowSuccessSnack
   showLoginSuccessSnack = () => ({ message: i18n.login });
 
-  @effectGQLMutationError
-  @whenPayload({ query: LOGIN_MUTATION })
-  @actionLoginError
-  errorLogin = getError;
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: SIGNUP_MUTATION })
-  @actionSignupSuccess
-  @actionGQLResetCache
-  successSignup = () => {};
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: SIGNUP_MUTATION })
   @actionShowSuccessSnack
   showSignupSuccessSnack = () => ({ message: i18n.signup });
 
-  @effectGQLMutationError
-  @whenPayload({ query: SIGNUP_MUTATION })
-  @actionSignupError
-  errorSignup = getError;
-
-  @effectGQLMutationLoading
-  @effectGQLMutationSuccess
-  @effectGQLMutationError
-  @whenPayload({ query: SAVE_PROFILE_MUTATION })
-  loadingSaveProfile = ({ data, errors }: GQLPayload) => {
-    this.isLoadingSaveProfile = !(data || errors);
-  };
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: SAVE_PROFILE_MUTATION })
-  @actionSaveProfileSuccess
-  successSaveProfile = () => {};
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: SAVE_PROFILE_MUTATION })
   @actionShowSuccessSnack
   showSaveProfileSuccessSnack = () => ({ message: i18n.profileSaved });
 
-  @effectGQLMutationError
-  @whenPayload({ query: SAVE_PROFILE_MUTATION })
-  @actionSaveProfileError
-  errorSaveProfile = getError;
-
-  @whenInit
-  toInit = () => {
-    if (!this.isReady) this.getUser();
-  };
+  @actionShowSuccessSnack
+  showLogoutSuccessSnack = () => ({ message: i18n.logoutSuccess });
 
   get isReady() {
     return !!this.user;
   }
 
-  @effectGQLResetCacheSuccess
-  @reloadAction
-  toReload = () => {};
+  toJSON() {}
 }

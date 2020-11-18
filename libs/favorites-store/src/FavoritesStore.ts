@@ -1,141 +1,43 @@
-import { observable, computed, ObservableMap } from 'mobx';
-import { whenInit, whenReload, whenPayload, propOneOf } from '@nimel/directorr';
-import gql from 'graphql-tag';
-import { Product as ProductType } from '@demo/gql-schema';
+import { observable, computed } from 'mobx';
+import { whenInit, whenReload, injectStore } from '@nimel/directorr';
+import { RootStore, RootStoreType, ProductModelType, selectFromProduct } from '@demo/mst-gql';
 import {
-  actionGQLQuery,
-  effectGQLQuerySuccess,
-  effectGQLQueryLoading,
-  effectGQLQueryError,
-  actionGQLMutation,
-  GQLPayload,
-  FETCH_POLICY,
-} from '@demo/sagas';
-import { PRODUCT_FRAGMENT } from '@demo/catalog-store';
-import { actionOpenModal, ModalBoxPayload } from '@demo/modal-box';
+  actionSetFavoritesProducts,
+  effectSetFavoritesProducts,
+  ProductsPayload,
+} from './decorators';
 
-const FAVORITES_PRODUCTS_QUERY = gql`
-  query {
-    me {
-      id
-      favorites {
-        ...ProductFragment
-      }
-    }
-  }
-  ${PRODUCT_FRAGMENT}
-`;
-
-const ADD_FAVORITE_PRODUCT_MUTATION = gql`
-  mutation AddFavoriteProduct($productID: String!) {
-    addFavorite(id: $productID) {
-      ...ProductFragment
-    }
-  }
-  ${PRODUCT_FRAGMENT}
-`;
-
-const REMOVE_FAVORITE_PRODUCT_MUTATION = gql`
-  mutation RemoveFavoriteProduct($productID: String!) {
-    removeFavorite(id: $productID) {
-      ...ProductFragment
-    }
-  }
-  ${PRODUCT_FRAGMENT}
-`;
-
-export type Product = Pick<ProductType, 'id' | 'name' | 'price' | 'favorite'>;
+const PRODUCT_QUERY = selectFromProduct().name.price.favorite.toString();
 
 export class FavoritesStore {
-  @observable.shallow productsMap = new Map() as ObservableMap<string, Product>;
-  @computed get products() {
-    return [...this.productsMap.keys()];
+  @injectStore(RootStore) rootStore: RootStoreType;
+  @observable.ref products?: ProductModelType[];
+
+  @computed get isLoading() {
+    return !this.products;
   }
-  @observable.shallow isLoadingFavorites = new Map<string, null>();
-  @observable isLoading = true;
-  isReady = false;
 
-  @actionOpenModal
-  showProductDetailsModal = (productID: string, component: ModalBoxPayload['component']) => ({
-    component,
-    props: { productID },
-  });
-
-  // @actionOpenModal
-  // showProductDetailsModal = (productID: string) => ({
-  //   component: ProductDetailsModal,
-  //   props: { productID },
-  // });
-
+  @whenInit
   @whenReload
-  @actionGQLQuery
-  getFavoritesProducts = () => ({
-    query: FAVORITES_PRODUCTS_QUERY,
-    fetchPolicy: FETCH_POLICY.NETWORK_ONLY,
-  });
+  getProducts = () => {
+    const { data, promise } = this.rootStore.qFavoritesProducts({}, PRODUCT_QUERY);
 
-  @effectGQLQueryLoading
-  @effectGQLQuerySuccess
-  @effectGQLQueryError
-  @whenPayload({ query: FAVORITES_PRODUCTS_QUERY })
-  setLoading = ({ data, errors }: GQLPayload) => {
-    this.isLoading = !(data || errors);
-  };
-
-  @effectGQLQuerySuccess
-  @whenPayload({ query: FAVORITES_PRODUCTS_QUERY })
-  setProducts = ({
-    data: {
-      me: { favorites },
-    },
-  }: GQLPayload) => {
-    this.productsMap.merge(favorites.map((p) => [p.id, p]));
-  };
-
-  @actionGQLMutation
-  addFavorite = (productID: string) => ({
-    query: ADD_FAVORITE_PRODUCT_MUTATION,
-    variables: { productID },
-  });
-
-  @actionGQLMutation
-  removeFavorite = (productID: string) => ({
-    query: REMOVE_FAVORITE_PRODUCT_MUTATION,
-    variables: { productID },
-  });
-
-  @effectGQLQueryLoading
-  @effectGQLQuerySuccess
-  @effectGQLQueryError
-  @whenPayload({
-    query: propOneOf([ADD_FAVORITE_PRODUCT_MUTATION, REMOVE_FAVORITE_PRODUCT_MUTATION]),
-  })
-  setFavoriteProductLoading = ({ data, errors, variables: { productID } }: GQLPayload) => {
-    if (data || errors) {
-      this.isLoadingFavorites.delete(productID);
+    if (data?.favorites) {
+      this.whenHaveProducts(data);
     } else {
-      this.isLoadingFavorites.set(productID, null);
+      promise.tap(this.whenHaveProducts);
     }
   };
 
-  @effectGQLQuerySuccess
-  @whenPayload({
-    query: propOneOf([ADD_FAVORITE_PRODUCT_MUTATION, REMOVE_FAVORITE_PRODUCT_MUTATION]),
-  })
-  changeFavoriteProduct = ({ data: { addFavorite, removeFavorite } }: GQLPayload) => {
-    this.isReady = true;
-    const product = addFavorite || removeFavorite;
+  @actionSetFavoritesProducts
+  whenHaveProducts = ({ favorites }: { favorites: ProductModelType[] }) => ({
+    products: favorites,
+  });
 
-    this.productsMap.set(product.id, product);
+  @effectSetFavoritesProducts
+  setProducts = ({ products }: ProductsPayload) => {
+    this.products = [...products];
   };
 
-  @whenInit
-  toInit = () => {
-    if (!this.isReady) this.getFavoritesProducts();
-  };
-
-  fromJSON({ productsMap, isLoading }: FavoritesStore) {
-    this.productsMap.replace(productsMap);
-    this.isLoading = isLoading;
-  }
+  toJSON() {}
 }

@@ -4,7 +4,7 @@ type Query {
 
 type Mutation {
   signup(userSignupInput: UserSignupInput!): User!
-  login(userLoginInput: UserLoginInput!): User
+  login(userLoginInput: UserLoginInput!): User!
   logout: Boolean
   saveProfile(userInfoInput: UserInfoInput): User!
 }
@@ -15,7 +15,6 @@ type User {
   name: String!
   surname: String!
   roles: [UserRole!]!
-  favorites: [Product]
   activeOrders: [Order!]!
 }
 

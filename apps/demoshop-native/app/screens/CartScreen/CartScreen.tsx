@@ -49,7 +49,7 @@ export const CartScreen: FC = () => {
     isUpdating,
     update,
   } = useStore(CartStore);
-  const onOpenModal = useCallback((product: Product) => {
+  const openModal = useCallback((product: Product) => {
     showProductDetailsModal(ProductDetailsModal, { product });
   }, []);
 
@@ -82,7 +82,7 @@ export const CartScreen: FC = () => {
                   productsMap={productsMap}
                   isLoadingDeleting={isLoadingDeleting}
                   deleteFromCart={deleteFromCart}
-                  onOpenModal={onOpenModal}
+                  openModal={openModal}
                 />
               ))}
             </View>

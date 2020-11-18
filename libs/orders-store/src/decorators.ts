@@ -1,14 +1,16 @@
 import { createActionAndEffect } from '@nimel/directorr';
-import { ProductsSort } from '@demo/gql-schema';
+import { OrderModelType } from '@demo/mst-gql';
 
-// export interface SortPayload {
-//   sort: ProductsSort;
-// }
+export interface SetOrdersPayload {
+  orders: OrderModelType[];
+}
 
-// export interface PagePayload {
-//   page: number;
-// }
-
-export const [actionUpdateOrders, effectUpdateOrders] = createActionAndEffect(
-  'ORDERS.UPDATE_ORDERS'
+export const [actionSetOrders, effectSetOrders] = createActionAndEffect<SetOrdersPayload>(
+  'OrdersStore.SET_ORDERS'
+);
+export const [actionUpdateOrders, effectUpdateOrders] = createActionAndEffect<void>(
+  'OrdersStore.UPDATE_ORDERS'
+);
+export const [actionEndLodingOrders, effectEndLodingOrders] = createActionAndEffect<void>(
+  'OrdersStore.END_LOADING'
 );

@@ -1,14 +1,9 @@
-import { Args, Query, Resolver, ResolveField, Parent } from '@nestjs/graphql';
-import type { CategoryData } from '@api/db';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import CategoriesService from './categories.service';
-import ProductsService from '@api/modules/products/products.service';
 
 @Resolver('Category')
 export default class CategoriesResolvers {
-  constructor(
-    private readonly categories: CategoriesService,
-    private readonly products: ProductsService
-  ) {}
+  constructor(private readonly categories: CategoriesService) {}
 
   @Query('categories')
   all() {
@@ -18,11 +13,5 @@ export default class CategoriesResolvers {
   @Query('category')
   async categorytWhere(@Args('id') id: string) {
     return await this.categories.whereId(id);
-  }
-
-  @ResolveField('products')
-  async category(@Parent() category: CategoryData) {
-    const { productsIDS } = category;
-    return await this.products.whereIds(productsIDS);
   }
 }

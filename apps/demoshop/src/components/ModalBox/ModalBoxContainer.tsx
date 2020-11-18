@@ -1,10 +1,10 @@
 import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@nimel/directorr-react';
-import ModalBoxStore from './ModalBoxStore';
+import MaterialModalStore from './MaterialModalStore';
 
 export const ModalBoxContainer: FC = () => {
-  const { modals } = useStore(ModalBoxStore);
+  const { modals } = useStore(MaterialModalStore);
 
   return <>{[...modals.values()]}</>;
 };

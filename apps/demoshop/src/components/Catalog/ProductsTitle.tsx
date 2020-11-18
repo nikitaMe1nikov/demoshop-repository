@@ -20,14 +20,9 @@ const useStyles = makeStyles((theme) => ({
 
 export const ProductsTitle: FC = () => {
   const classes = useStyles();
-  const {
-    currentCategory,
-    productsTotal,
-    sortList,
-    currentSort,
-    setCurrentSort,
-    isLoading,
-  } = useStore(CatalogStore);
+  const { currentCategory, productsTotal, sortList, currentSort, setCurrentSort } = useStore(
+    CatalogStore
+  );
 
   const selectedSort = useCallback(
     (e) => {
@@ -44,7 +39,7 @@ export const ProductsTitle: FC = () => {
       justifyContent="space-between"
       alignItems="center"
     >
-      {isLoading ? (
+      {!currentCategory ? (
         <Skeleton variant="text" height={56} width={150} />
       ) : (
         <>

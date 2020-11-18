@@ -9,8 +9,7 @@ import {
   validateAll,
   validatePayload,
 } from '@nimel/directorr-form';
-import { UserStore, effectSignupError } from '@demo/user-store';
-import { actionShowSnack } from '@demo/snackbar';
+import { UserStore } from '@demo/user-store';
 
 const VALIDATION_SCHEME = object().shape({
   email: string().email().required(),
@@ -28,7 +27,7 @@ const VALIDATION_SCHEME = object().shape({
 });
 
 export class SignupFormStore {
-  @injectStore(UserStore) user: UserStore;
+  @injectStore(UserStore) userStore: UserStore;
 
   @connectStore() email = new FormStore();
   @connectStore() name = new FormStore();
@@ -36,7 +35,7 @@ export class SignupFormStore {
   @connectStore() checkPassword = new FormStore();
 
   @computed get isLoading() {
-    return this.user.isLoadingSignup;
+    return this.userStore.isLoadingSignup;
   }
 
   submitButton = () => {
@@ -51,11 +50,7 @@ export class SignupFormStore {
   @validateAll(VALIDATION_SCHEME)
   submitSignup = ({ validationError }: validatePayload) => {
     if (!validationError) {
-      this.user.signup(this.email.value, this.password.value, this.name.value);
+      this.userStore.signup(this.email.value, this.password.value, this.name.value);
     }
   };
-
-  @effectSignupError
-  @actionShowSnack
-  whenErrorSign = ({ message }) => ({ message });
 }

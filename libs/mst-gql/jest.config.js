@@ -1,9 +1,9 @@
 module.exports = {
-  name: "product-details-store",
+  name: "mst-gql",
   preset: "../../jest.config.js",
   transform: {
     "^.+\\.[tj]sx?$": "ts-jest",
   },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "html"],
-  coverageDirectory: "../../coverage/libs/product-details-store",
+  coverageDirectory: "../../coverage/libs/mst-gql",
 };

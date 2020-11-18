@@ -6,16 +6,15 @@ import { UserRole } from '@demo/gql-schema';
 
 @Injectable()
 export default class UsersService {
-  idsBatcher = new DataLoader((ids: string[]) =>
-    Promise.resolve(ids.map((id) => USERS.find((v) => v.id === id)))
-  );
+  idsBatcher = new DataLoader(((ids: string[]) =>
+    Promise.resolve(ids.map((id) => USERS.find((v) => v.id === id)))) as any);
 
   all() {
     return USERS;
   }
 
   whereId(id: string) {
-    return this.idsBatcher.load(id);
+    return this.idsBatcher.load(id) as Promise<UserData>;
   }
 
   whereEmail(email: string) {

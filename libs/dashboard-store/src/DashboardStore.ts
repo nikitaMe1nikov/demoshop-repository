@@ -1,58 +1,41 @@
-import { observable } from 'mobx';
-import { whenInit, whenReload, whenPayload, DirectorrStoreClass } from '@nimel/directorr';
+import { observable, computed } from 'mobx';
+import { whenInit, whenReload, DirectorrStoreClass, injectStore } from '@nimel/directorr';
 import { historyChange, HistoryChangeActionPayload } from '@nimel/directorr-router';
-import { Banner } from '@demo/gql-schema';
-import gql from 'graphql-tag';
 import { ROOT_URL } from '@demo/url';
-import {
-  actionGQLQuery,
-  effectGQLQuerySuccess,
-  effectGQLQueryLoading,
-  effectGQLQueryError,
-  GQLPayload,
-} from '@demo/sagas';
 export type { Banner } from '@demo/gql-schema';
+import { RootStore, RootStoreType, BannerModelType, selectFromBanner } from '@demo/mst-gql';
+import { actionSetBanners, effectSetBanners, BannersPayload } from './decorators';
 
-const BANNERS_QUERY = gql`
-  query {
-    banners {
-      id
-      name
-      description
-      images {
-        small
-        medium
-        big
-      }
-    }
-  }
-`;
+const BANNERS_QUERY = selectFromBanner()
+  .name.description.images((image) => image.big.medium.small)
+  .toString();
 
 export class DashboardStore implements DirectorrStoreClass {
-  @observable.ref banners?: Banner[];
-  @observable isLoading = true;
+  @injectStore(RootStore) rootStore: RootStoreType;
+  @observable.ref banners?: BannerModelType[];
+
+  @computed get isLoading() {
+    return !this.banners;
+  }
 
   @whenReload
-  @actionGQLQuery
-  getBanners = () => ({ query: BANNERS_QUERY });
-
-  @effectGQLQueryLoading
-  @effectGQLQueryError
-  @effectGQLQuerySuccess
-  @whenPayload({ query: BANNERS_QUERY })
-  whenLoading = ({ data, errors }: GQLPayload) => {
-    this.isLoading = !(data || errors);
-  };
-
-  @effectGQLQuerySuccess
-  @whenPayload({ query: BANNERS_QUERY })
-  setBanners = ({ data: { banners } }: GQLPayload) => {
-    this.banners = banners;
-  };
-
   @whenInit
-  toInit = () => {
-    if (!this.isReady) this.getBanners();
+  getBanners = () => {
+    const { data, promise } = this.rootStore.qBanners({}, BANNERS_QUERY);
+
+    if (data?.banners) {
+      this.whenHaveBanners(data);
+    }
+
+    promise.tap(this.whenHaveBanners);
+  };
+
+  @actionSetBanners
+  whenHaveBanners = ({ banners }: BannersPayload) => ({ banners });
+
+  @effectSetBanners
+  setBanners = ({ banners }: BannersPayload) => {
+    this.banners = banners;
   };
 
   @historyChange(ROOT_URL)

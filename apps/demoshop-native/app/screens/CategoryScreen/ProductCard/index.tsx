@@ -62,7 +62,7 @@ interface ProductCardProps {
   isLoadingFavorites: Map<string, null>;
   addFavorite: (id: string) => void;
   removeFavorite: (id: string) => void;
-  onOpenModal: (product: Product) => void;
+  openModal: (product: Product) => void;
 }
 
 export const ProductCard: FC<ProductCardProps> = ({
@@ -73,14 +73,11 @@ export const ProductCard: FC<ProductCardProps> = ({
   addFavorite,
   removeFavorite,
   isLogin,
-  onOpenModal,
+  openModal,
 }) => {
-  const { name, price, favorite } = productsMap.get(productID);
+  const product = productsMap.get(productID);
   const isLoading = isLoadingFavorites.has(productID);
-  const onPressImage = useCallback(() => onOpenModal({ id: productID, name, price, favorite }), [
-    onOpenModal,
-    productID,
-  ]);
+  const onPressImage = useCallback(() => openModal(product), [openModal, product]);
 
   return (
     <Card transparent style={[styles.card, style]}>
@@ -88,20 +85,20 @@ export const ProductCard: FC<ProductCardProps> = ({
         <Button transparent style={styles.image} onPress={onPressImage} />
       </CardItem>
       <CardItem cardBody style={[childrenColumn, childrenCrossStart, styles.textContainer]}>
-        <Text>{name}</Text>
+        <Text>{product.name}</Text>
         <Text>
-          {price} {DOL}
+          {product.price} {DOL}
         </Text>
       </CardItem>
       <CardItem cardBody>
-        <ProductAmountButton productID={productID} />
+        <ProductAmountButton productID={product.id} />
       </CardItem>
       {isLogin && (
         <FavoriteIcon
           style={styles.favoriteIcon}
           isLoading={isLoading}
           productID={productID}
-          favorite={favorite}
+          favorite={product.favorite}
           addFavorite={addFavorite}
           removeFavorite={removeFavorite}
         />

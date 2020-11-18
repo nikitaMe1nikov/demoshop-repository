@@ -6,23 +6,24 @@ import { useStore } from '@nimel/directorr-react';
 import { DirectorrNextComponent } from '@nimel/directorr-next';
 import Grid from '@material-ui/core/Grid';
 import Page from '@demoshop/components/Page';
-import MainBar from '@demoshop/components/MainBar';
+import NoSsr from '@material-ui/core/NoSsr';
 import CategoryPanel from '@demoshop/components/Categories/CategoryPanel';
+import MainBar from '@demoshop/components/MainBar';
 import BannerCard, { BannerCardLoading } from '@demoshop/components/Dashboard/BannerCard';
 import FavoriteProductsGrid from '@demoshop/components/Dashboard/FavoriteProductsGrid';
 import { DashboardStore } from '@demo/dashboard-store';
-import { CategoriesStore } from '@demo/categories-store';
-import { CartStore } from '@demo/cart-store';
 import { UserStore } from '@demo/user-store';
 
 export const Dashboard: DirectorrNextComponent = () => {
-  const { banners, isLoading } = useStore(DashboardStore);
+  const { isLoading, banners } = useStore(DashboardStore);
   const { isLogin } = useStore(UserStore);
 
   return (
     <Page>
       <MainBar title="Catalog">
-        <CategoryPanel />
+        <NoSsr>
+          <CategoryPanel />
+        </NoSsr>
       </MainBar>
       <Container maxWidth="md">
         <Box my={2}>
@@ -32,7 +33,7 @@ export const Dashboard: DirectorrNextComponent = () => {
                 <BannerCardLoading />
               </Grid>
             ) : (
-              banners.map((b) => (
+              banners?.map((b) => (
                 <Grid key={b.id} item>
                   <BannerCard banner={b} />
                 </Grid>
@@ -44,10 +45,6 @@ export const Dashboard: DirectorrNextComponent = () => {
       </Container>
     </Page>
   );
-};
-
-Dashboard.whenServerLoadDirectorr = (directorr) => {
-  directorr.addStores(DashboardStore, CategoriesStore, CartStore, UserStore);
 };
 
 export default observer(Dashboard);

@@ -58,7 +58,7 @@ export const ProductDetailsModal: FC<ProductDetailsModalProps> = ({ product, onC
   const { name, price, favorite, description, recomendations } =
     productsMap.get(product.id) || product;
   const isLoadingFavorite = isLoadingFavorites.has(product.id);
-  const onOpenModal = useCallback((product: Product) => {
+  const openModal = useCallback((product: Product) => {
     showProductDetailsModal(ProductDetailsModal, { product });
   }, []);
 
@@ -123,7 +123,7 @@ export const ProductDetailsModal: FC<ProductDetailsModalProps> = ({ product, onC
                   productID={p.id}
                   productsMap={productsMap}
                   isLogin={isLogin}
-                  onOpenModal={onOpenModal}
+                  openModal={openModal}
                 />
               ))}
             </CardItem>

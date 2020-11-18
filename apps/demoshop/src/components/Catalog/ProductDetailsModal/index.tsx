@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@nimel/directorr-react';
 import { makeStyles, withStyles, styled } from '@material-ui/core/styles';
@@ -7,19 +7,21 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import { CatalogStore } from '@demo/catalog-store';
-import { ProductDetailsStore } from '@demo/product-details-store';
+import { ProductModelType } from '@demo/mst-gql';
 import { UserStore } from '@demo/user-store';
 import { DOL } from '@demoshop/components/constants';
 import FavoriteIcon from '@demoshop/components/Catalog/ProductCard/FavoriteIcon';
 import ProductAmountButton from '@demoshop/components/Cart/ProductAmountButton';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { CartStore } from '@demo/cart-store';
 
 const useStyles = makeStyles({
   favoriteIcon: {
     position: 'absolute',
     top: 8,
     right: 8,
+  },
+  amountButton: {
+    width: 8 * 20,
   },
 });
 
@@ -40,25 +42,26 @@ const DescriptionLoading: FC = () => <Skeleton variant="rect" height={200} />;
 const ARIA_LABEL = 'product-details';
 
 interface ProductDetailsModalProps {
-  productID: string;
+  product: ProductModelType;
   open: boolean;
   onClose?: () => void;
   onExited?: () => void;
 }
 
 export const ProductDetailsModal: FC<ProductDetailsModalProps> = ({
-  productID,
+  product,
   open,
   onClose,
   onExited,
 }) => {
   const classes = useStyles();
   const { isLogin } = useStore(UserStore);
-  const { description, isLoading } = useStore(ProductDetailsStore, { productID });
-  const { productsMap, isLoadingFavorites, addFavorite, removeFavorite } = useStore(CatalogStore);
-  const { productsMap: cartProductsMap } = useStore(CartStore);
-  const { name, price, favorite } = productsMap.get(productID) || cartProductsMap.get(productID);
-  const isLoadingFavorite = isLoadingFavorites.has(productID);
+  const { getProduct } = useStore(CatalogStore);
+  const { id, name, price, description } = product;
+
+  useEffect(() => {
+    if (!description) getProduct(id);
+  }, [id, description, getProduct]);
 
   return (
     <Container
@@ -80,27 +83,18 @@ export const ProductDetailsModal: FC<ProductDetailsModalProps> = ({
               {price} {DOL}
             </Typography>
             <Box mt={2}>
-              <ProductAmountButton productID={productID} />
+              <ProductAmountButton className={classes.amountButton} product={product} />
             </Box>
           </Box>
         </Box>
         <Box minHeight={200} mb={1} mt={2}>
-          {isLoading ? (
+          {!description ? (
             <DescriptionLoading />
           ) : (
             <Typography variant="subtitle1">{description}</Typography>
           )}
         </Box>
-        {isLogin && (
-          <FavoriteIcon
-            className={classes.favoriteIcon}
-            isLoading={isLoadingFavorite}
-            productID={productID}
-            favorite={favorite}
-            addFavorite={addFavorite}
-            removeFavorite={removeFavorite}
-          />
-        )}
+        {isLogin && <FavoriteIcon className={classes.favoriteIcon} product={product} />}
       </DialogContent>
     </Container>
   );

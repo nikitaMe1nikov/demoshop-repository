@@ -18,8 +18,8 @@ export function eventListenerOptionsSupported() {
       }
     );
 
-    window.addEventListener('test', null, opts);
-    window.removeEventListener('test', null, opts);
+    window.addEventListener('test', null as any, opts);
+    window.removeEventListener('test', null as any, opts);
   } catch (e) {
     /* empty */
   }

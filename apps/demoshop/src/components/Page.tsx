@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { FC } from 'react';
 import Container from '@material-ui/core/Container';
 
-export const Page = ({ children }) => (
+export const Page: FC = ({ children }) => (
   <Container disableGutters maxWidth={false}>
-    {children}
+    {children as any}
   </Container>
 );
 

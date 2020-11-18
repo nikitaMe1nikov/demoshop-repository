@@ -20,7 +20,7 @@ type CartChangedEvent {
 }
 
 extend type Product {
-  amount: Int
+  amount: Int!
 }
 
 type Order {
@@ -30,6 +30,7 @@ type Order {
   price: Int!
   discount: Int!
   products: [Product]!
+  totalByID: [String]!
 }
 
 enum OrderStatus {

@@ -67,7 +67,7 @@ export const CategoryScreen: FC = () => {
     isUpdating,
   } = useStore(CatalogStore);
   const { isLogin, isLoading: isLoadingUser } = useStore(UserStore);
-  const onOpenModal = useCallback((product: Product) => {
+  const openModal = useCallback((product: Product) => {
     showProductDetailsModal(ProductDetailsModal, { product });
   }, []);
   const renderItem = useCallback(
@@ -80,7 +80,7 @@ export const CategoryScreen: FC = () => {
         addFavorite={addFavorite}
         removeFavorite={removeFavorite}
         isLogin={isLogin}
-        onOpenModal={onOpenModal}
+        openModal={openModal}
       />
     ),
     []

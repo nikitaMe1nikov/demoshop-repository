@@ -7,6 +7,7 @@ import ProductsService from './products.service';
 import CategoriesService from '@api/modules/categories/categories.service';
 import UsersService from '@api/modules/users/users.service';
 import { ERROR_CODE, ERROR_CODE_MESSAGES } from '@api/CONSTANTS';
+import type { GQLContext } from '../../GraphqlOptions';
 
 @Resolver('Product')
 export default class ProductsResolvers {
@@ -22,7 +23,7 @@ export default class ProductsResolvers {
     @Args('sort') sort: ProductsSort,
     @Args('first') first: number,
     @Args('after') after: number,
-    @Context() { user }
+    @Context() { user }: GQLContext
   ) {
     const favorites = user ? (await this.users.whereId(user.sub)).favorites : [];
 
@@ -41,8 +42,19 @@ export default class ProductsResolvers {
     };
   }
 
+  @Query('favorites')
+  async favorites(@Context() { user }: GQLContext) {
+    if (!user) return [];
+
+    const { favorites } = await this.users.whereId(user.sub);
+
+    const products = await this.products.whereIds(favorites);
+
+    return products.map((p) => ({ ...p, favorite: true }));
+  }
+
   @Query('product')
-  async productWhere(@Args('id') id: string, @Context() { user }) {
+  async productWhere(@Args('id') id: string, @Context() { user }: GQLContext) {
     const favorites = user ? (await this.users.whereId(user.sub)).favorites : [];
     const product = await this.products.whereId(id);
 
@@ -55,7 +67,7 @@ export default class ProductsResolvers {
   }
 
   @ResolveField('recomendations')
-  async recomendations(@Parent() { recomendations }: ProductData, @Context() { user }) {
+  async recomendations(@Parent() { recomendations }: ProductData, @Context() { user }: GQLContext) {
     const favorites = user ? (await this.users.whereId(user.sub)).favorites : [];
     const products = await this.products.whereIds(recomendations);
 
@@ -65,7 +77,7 @@ export default class ProductsResolvers {
   }
 
   @Mutation('addFavorite')
-  async addFavorites(@Args('id') id: string, @Context() { user }) {
+  async addFavorites(@Args('id') id: string, @Context() { user }: GQLContext) {
     if (!user)
       throw new HttpException(
         ERROR_CODE_MESSAGES.NOT_WORK_FOR_ANONIM,
@@ -90,7 +102,7 @@ export default class ProductsResolvers {
   }
 
   @Mutation('removeFavorite')
-  async removeFavorites(@Args('id') id: string, @Context() { user }) {
+  async removeFavorites(@Args('id') id: string, @Context() { user }: GQLContext) {
     if (!user)
       throw new HttpException(
         ERROR_CODE_MESSAGES.NOT_WORK_FOR_ANONIM,

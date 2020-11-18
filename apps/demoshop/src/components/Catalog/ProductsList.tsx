@@ -1,31 +1,14 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@nimel/directorr-react';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import ProductCard, { ProductCardLoading } from '@demoshop/components/Catalog/ProductCard';
 import { CatalogStore } from '@demo/catalog-store';
-import { UserStore } from '@demo/user-store';
 import { useWindowScrollEnd } from '@demoshop/hooks/scroll';
-import ProductDetailsModal from '@demoshop/components/Catalog/ProductDetailsModal';
 
 export const ProductsList: FC = () => {
-  const {
-    products,
-    loadMore,
-    hasNextPage,
-    isLoading,
-    productsMap,
-    isLoadingFavorites,
-    addFavorite,
-    removeFavorite,
-    showProductDetailsModal,
-  } = useStore(CatalogStore);
-  const { isLogin } = useStore(UserStore);
-  const onOpenModal = useCallback(
-    (productID: string) => showProductDetailsModal(productID, ProductDetailsModal),
-    [showProductDetailsModal]
-  );
+  const { products, loadMore, hasNextPage, isLoading } = useStore(CatalogStore);
 
   useWindowScrollEnd(loadMore);
 
@@ -49,17 +32,9 @@ export const ProductsList: FC = () => {
           </>
         ) : (
           <>
-            {products.map((id) => (
-              <Grid key={id} item xs={3}>
-                <ProductCard
-                  productID={id}
-                  productsMap={productsMap}
-                  isLoadingFavorites={isLoadingFavorites}
-                  addFavorite={addFavorite}
-                  removeFavorite={removeFavorite}
-                  isLogin={isLogin}
-                  onOpenModal={onOpenModal}
-                />
+            {products?.map((product) => (
+              <Grid key={product.id} item xs={3}>
+                <ProductCard product={product} />
               </Grid>
             ))}
             {hasNextPage && (

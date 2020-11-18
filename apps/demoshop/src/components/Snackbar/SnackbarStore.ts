@@ -1,4 +1,4 @@
-import { observable, IObservableArray } from 'mobx';
+import { observable } from 'mobx';
 import { SnackbarKey, VariantType } from 'notistack';
 import {
   SnackbarPayload,
@@ -16,9 +16,7 @@ import {
 } from '@demo/snackbar';
 
 export class SnackbarStore {
-  @observable.shallow snacks = [] as IObservableArray<
-    Partial<SnackbarPayload & SnackbarHidePayload>
-  >;
+  @observable.shallow snacks: Partial<SnackbarPayload & SnackbarHidePayload>[] = [];
 
   @effectShowSuccessSnack
   @actionShowSnack
@@ -63,7 +61,7 @@ export class SnackbarStore {
 
   @effectClearSnack
   toClear = () => {
-    if (this.snacks.length) this.snacks.clear();
+    if (this.snacks.length) this.snacks = [];
   };
 }
 

@@ -1,42 +1,33 @@
-import { observable, computed, ObservableMap } from 'mobx';
-import {
-  whenInit,
-  whenReload,
-  whenPayload,
-  propOneOf,
-  DirectorrStoreClass,
-} from '@nimel/directorr';
-import gql from 'graphql-tag';
+import { observable, computed } from 'mobx';
+import { whenInit, whenReload, injectStore } from '@nimel/directorr';
 import {
   historyChange,
   HistoryChangeActionPayload,
   actionRouterPush,
 } from '@nimel/directorr-router';
-import { Product as ProductType, Order } from '@demo/gql-schema';
 import {
-  actionGQLQuery,
-  effectGQLQuerySuccess,
-  effectGQLQueryLoading,
-  effectGQLQueryError,
-  actionGQLMutation,
-  effectGQLMutationSuccess,
-  effectGQLMutationLoading,
-  effectGQLMutationError,
-  FETCH_POLICY,
-  GQLPayload,
-  Variables,
-} from '@demo/sagas';
-import { CART_URL, ROOT_URL } from '@demo/url';
-import { actionShowInfoSnack } from '@demo/snackbar';
-import i18n from '@demo/i18n';
-// import { actionOpenModal, ModalBoxPayload } from '@demo/modal-box';
+  RootStore,
+  RootStoreType,
+  ProductModelType,
+  CHANGE_CART_QUERY,
+  FetchPolicy,
+} from '@demo/mst-gql';
+import { CART_URL, ORDERS_URL } from '@demo/url';
 import {
   actionSetSort,
   effectSetSort,
+  actionSetCart,
   effectSetCart,
   SortPayload,
   actionUpdateCart,
   effectUpdateCart,
+  SetCartPayload,
+  actionFillCart,
+  effectFillCart,
+  actionEndLoadingCart,
+  effectEndLoadingCart,
+  actionFillCartSuccess,
+  effectFillCartSucces,
 } from './decorators';
 
 enum ProductsSort {
@@ -44,100 +35,29 @@ enum ProductsSort {
   PRICE_DSC,
 }
 
-export const ORDER_FRAGMENT = gql`
-  fragment OrderFragment on Order {
-    id
-    total
-    price
-    discount
-    products {
-      id
-      name
-      price
-      amount
-      favorite
-      # category {
-      #   name
-      # }
-    }
-  }
-`;
-
-const CART_QUERY = gql`
-  query {
-    cart {
-      ...OrderFragment
-    }
-  }
-  ${ORDER_FRAGMENT}
-`;
-
-const ADD_TO_CART_MUTATION = gql`
-  mutation AddToCart($productID: String!) {
-    addToCart(productID: $productID) {
-      ...OrderFragment
-    }
-  }
-  ${ORDER_FRAGMENT}
-`;
-
-const REMOVE_FROM_CART_MUTATION = gql`
-  mutation RemoveFromCart($productID: String!) {
-    removeFromCart(productID: $productID) {
-      ...OrderFragment
-    }
-  }
-  ${ORDER_FRAGMENT}
-`;
-
-const DELETE_FROM_CART_MUTATION = gql`
-  mutation DeleteFromCart($productID: String!) {
-    deleteFromCart(productID: $productID) {
-      ...OrderFragment
-    }
-  }
-  ${ORDER_FRAGMENT}
-`;
-
-const FILL_CART_MUTATION = gql`
-  mutation FillCart {
-    fillCart {
-      ...OrderFragment
-    }
-  }
-  ${ORDER_FRAGMENT}
-`;
-
-export type Product = Pick<
-  ProductType,
-  'id' | 'name' | 'price' | 'favorite' | 'amount' | 'category'
->;
-
-function convertToId(product: Product) {
-  return product.id;
-}
-
-export class CartStore implements DirectorrStoreClass {
+export class CartStore {
+  @injectStore(RootStore) rootStore: RootStoreType;
   @observable total?: number;
   @observable price?: number;
   @observable discount?: number;
-  @observable.shallow productsMap = new Map() as ObservableMap<string, Product>;
-  @observable.shallow isLoadingChange = new Map<string, null>();
-  @observable.shallow isLoadingDeleting = new Map<string, null>();
-  @observable isLoading = true;
+  @observable.ref products: ProductModelType[] = [];
   @observable isLoadingFill = false;
   @observable isUpdating = false;
   @observable currentSort: ProductsSort = ProductsSort.ALPHABET;
   sortList = Object.keys(ProductsSort);
 
-  @computed get sortProducts() {
-    const products = [...this.productsMap.values()];
+  @computed get isLoading() {
+    return this.total === undefined;
+  }
 
+  @computed get sortProducts() {
     if (this.currentSort === ProductsSort.PRICE_DSC) {
-      return products.sort((a, b) => (a.price < b.price ? -1 : 0)).map(convertToId);
+      return this.products.sort((a, b) =>
+        a.price !== undefined && b.price !== undefined && a.price < b.price ? -1 : 0
+      );
     }
 
-    return products.map(convertToId);
+    return this.products;
   }
 
   @computed get isEmpty() {
@@ -152,161 +72,78 @@ export class CartStore implements DirectorrStoreClass {
     this.currentSort = sort;
   };
 
-  // @actionOpenModal
-  // showProductDetailsModal = (productID: string, component: ModalBoxPayload['component']) => ({
-  //   component,
-  //   props: { productID },
-  // });
-
   @actionUpdateCart
   update = () => {};
 
   @effectUpdateCart
   toUpdateCart = () => {
-    this.getCart({
-      update: true,
-    });
+    this.isUpdating = true;
+
+    this.getCart('network-only');
   };
 
   @whenReload
-  @actionGQLQuery
-  getCart = (variables?: Variables) => ({
-    query: CART_QUERY,
-    fetchPolicy: FETCH_POLICY.NETWORK_ONLY,
-    variables,
-  });
+  getCart = (fetchPolicy?: FetchPolicy) => {
+    const { data, promise } = this.rootStore.qCart({}, CHANGE_CART_QUERY, {
+      fetchPolicy,
+    });
 
-  @actionGQLMutation
-  addToCart = (productID: string) => ({
-    query: ADD_TO_CART_MUTATION,
-    variables: { productID },
-  });
-
-  @actionGQLMutation
-  removeFromCart = (productID: string) => ({
-    query: REMOVE_FROM_CART_MUTATION,
-    variables: { productID },
-  });
-
-  @actionGQLMutation
-  deleteFromCart = (productID: string) => ({
-    query: DELETE_FROM_CART_MUTATION,
-    variables: { productID },
-  });
-
-  @effectGQLQuerySuccess
-  @effectGQLMutationSuccess
-  @whenPayload({
-    query: propOneOf([
-      CART_QUERY,
-      ADD_TO_CART_MUTATION,
-      REMOVE_FROM_CART_MUTATION,
-      DELETE_FROM_CART_MUTATION,
-      FILL_CART_MUTATION,
-    ]),
-  })
-  toChangeCart = ({
-    data: { cart, addToCart, removeFromCart, deleteFromCart, fillCart },
-  }: GQLPayload) => {
-    const { total, price, discount, products }: Order =
-      cart || addToCart || removeFromCart || deleteFromCart || fillCart;
-
-    this.total = total;
-    this.price = price;
-    this.discount = discount;
-    this.productsMap.replace(products.map((p) => [p.id, p]));
-  };
-
-  @effectSetCart
-  setCart = ({ total, price, discount, products }: Order) => {
-    this.total = total;
-    this.price = price;
-    this.discount = discount;
-    this.productsMap.replace(products.map((p) => [p.id, p]));
-  };
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: ADD_TO_CART_MUTATION })
-  @actionShowInfoSnack
-  whenAddedInCartCart = () => ({
-    message: i18n.productAddedInCart,
-  });
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: REMOVE_FROM_CART_MUTATION })
-  @actionShowInfoSnack
-  whenRemovedInCartCart = () => ({
-    message: i18n.productRemovedFromCart,
-  });
-
-  @actionGQLMutation
-  fillCart = () => ({
-    query: FILL_CART_MUTATION,
-  });
-
-  @effectGQLMutationSuccess
-  @whenPayload({ query: FILL_CART_MUTATION })
-  @actionRouterPush
-  toFillCart = () => {
-    this.getCart();
-
-    return {
-      path: ROOT_URL,
-    };
-  };
-
-  @effectGQLMutationLoading
-  @effectGQLMutationSuccess
-  @effectGQLMutationError
-  @whenPayload({ query: FILL_CART_MUTATION })
-  waitFillLoadingCart = ({ data, errors }: GQLPayload) => {
-    this.isLoadingFill = !(data || errors);
-  };
-
-  @effectGQLMutationLoading
-  @effectGQLMutationSuccess
-  @effectGQLMutationError
-  @whenPayload({
-    query: propOneOf([ADD_TO_CART_MUTATION, REMOVE_FROM_CART_MUTATION]),
-  })
-  waitProductChangeMutation = ({ data, errors, variables: { productID } }: GQLPayload) => {
-    if (data || errors) {
-      this.isLoadingChange.delete(productID);
-    } else {
-      this.isLoadingChange.set(productID, null);
+    if (data?.cart && !this.isReady) {
+      this.whenHaveCart(data);
     }
-  };
 
-  @effectGQLMutationLoading
-  @effectGQLMutationSuccess
-  @effectGQLMutationError
-  @whenPayload({
-    query: DELETE_FROM_CART_MUTATION,
-  })
-  waitProductDeletingMutation = ({ data, errors, variables: { productID } }: GQLPayload) => {
-    if (data || errors) {
-      this.isLoadingDeleting.delete(productID);
-    } else {
-      this.isLoadingDeleting.set(productID, null);
-    }
-  };
-
-  @effectGQLQueryLoading
-  @effectGQLQuerySuccess
-  @effectGQLQueryError
-  @whenPayload({ query: CART_QUERY })
-  waitLoadingCart = ({ data, errors, variables }: GQLPayload) => {
-    if (data || errors) {
-      this.isLoading = false;
-      this.isUpdating = false;
-    } else if (variables?.update) {
-      this.isUpdating = true;
-    }
+    promise.tap(this.whenHaveCart).finally(this.doneLoading);
   };
 
   @whenInit
-  toInit = () => {
-    if (!this.isReady) this.getCart();
+  init = () => {
+    this.getCart();
+  };
+
+  @actionSetCart
+  whenHaveCart = ({ cart }: SetCartPayload) => ({ cart });
+
+  @effectSetCart
+  setCart = ({ cart: { total, price, discount, products } }: SetCartPayload) => {
+    this.total = total;
+    this.price = price;
+    this.discount = discount;
+    this.products = [...products];
+  };
+
+  @actionEndLoadingCart
+  doneLoading = () => {};
+
+  @effectEndLoadingCart
+  toDoneLoading = () => {
+    this.isUpdating = false;
+    this.isLoadingFill = false;
+  };
+
+  @actionFillCart
+  fillCart = () => {};
+
+  @effectFillCart
+  toFillCart = () => {
+    this.isLoadingFill = true;
+
+    this.rootStore
+      .mFillCart({}, CHANGE_CART_QUERY)
+      .promise.tap(this.whenFillCart)
+      .finally(this.doneLoading);
+  };
+
+  @actionFillCartSuccess
+  whenFillCart = () => {};
+
+  @effectFillCartSucces
+  @actionRouterPush
+  updateCart = () => {
+    this.update();
+
+    return {
+      path: ORDERS_URL,
+    };
   };
 
   @historyChange(CART_URL)
@@ -318,11 +155,5 @@ export class CartStore implements DirectorrStoreClass {
     return this.total !== undefined;
   }
 
-  fromJSON({ total, price, discount, productsMap, isLoading }: CartStore) {
-    this.total = total;
-    this.price = price;
-    this.discount = discount;
-    this.productsMap.replace(productsMap);
-    this.isLoading = isLoading;
-  }
+  toJSON() {}
 }

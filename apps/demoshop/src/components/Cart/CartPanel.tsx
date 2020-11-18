@@ -12,7 +12,7 @@ import ButtonLoading from '@demoshop/components/ButtonLoading';
 import { CartStore } from '@demo/cart-store';
 
 export const CartPanel: FC = () => {
-  const { price, total, discount, isEmpty, fillCart, isLoading } = useStore(CartStore);
+  const { price, total, discount, isEmpty, fillCart, isLoadingFill } = useStore(CartStore);
 
   if (isEmpty) {
     return (
@@ -51,7 +51,7 @@ export const CartPanel: FC = () => {
             aria-label="fill cart"
             color="secondary"
             size="large"
-            isLoading={isLoading}
+            isLoading={isLoadingFill}
             onClick={fillCart}
           >
             оформить

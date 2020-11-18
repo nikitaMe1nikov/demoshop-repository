@@ -4,19 +4,18 @@ import { PRODUCTS, ProductData } from '@api/db';
 
 @Injectable()
 export default class ProductsService {
-  idsBatcher = new DataLoader((ids: string[]) =>
-    Promise.resolve(ids.map((id) => PRODUCTS.find((v) => v.id === id)))
-  );
+  idsBatcher = new DataLoader(((ids: string[]) =>
+    Promise.resolve(ids.map((id) => PRODUCTS.find((v) => v.id === id)))) as any);
 
   all() {
     return PRODUCTS;
   }
 
   whereId(id: string) {
-    return this.idsBatcher.load(id);
+    return this.idsBatcher.load(id) as Promise<ProductData>;
   }
 
   whereIds(ids: string[]) {
-    return (this.idsBatcher.loadMany(ids) as unknown) as Promise<ProductData[]>;
+    return this.idsBatcher.loadMany(ids) as Promise<ProductData[]>;
   }
 }

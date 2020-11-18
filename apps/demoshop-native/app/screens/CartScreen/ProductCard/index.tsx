@@ -39,7 +39,7 @@ interface ProductCardProps {
   productsMap: Map<string, Product>;
   isLoadingDeleting: Map<string, null>;
   deleteFromCart: (id: string) => void;
-  onOpenModal: (product: Product) => void;
+  openModal: (product: Product) => void;
 }
 
 export const ProductCard: FC<ProductCardProps> = ({
@@ -48,12 +48,12 @@ export const ProductCard: FC<ProductCardProps> = ({
   productsMap,
   isLoadingDeleting,
   deleteFromCart,
-  onOpenModal,
+  openModal,
 }) => {
   const { name, price, favorite } = productsMap.get(productID);
   const isLoading = isLoadingDeleting.has(productID);
-  const onPressImage = useCallback(() => onOpenModal({ id: productID, name, price, favorite }), [
-    onOpenModal,
+  const onPressImage = useCallback(() => openModal({ id: productID, name, price, favorite }), [
+    openModal,
     productID,
   ]);
 

@@ -1,5 +1,6 @@
 type Query {
-  products(categoryID: String!, sort: ProductsSort = PriceASC, first: Int = 30, after: Int = 0): Products
+  products(categoryID: String!, sort: ProductsSort = PriceASC, first: Int = 30, after: Int = 0): Products!
+  favorites: [Product!]!
   product(id: String): Product!
 }
 
@@ -13,7 +14,6 @@ type Products {
   total: Int!
   endCursor: Int!
   hasNextPage: Boolean!
-  currentSort: ProductsSort!
 }
 
 type Product {

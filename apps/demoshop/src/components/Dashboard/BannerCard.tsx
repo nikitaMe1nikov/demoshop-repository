@@ -5,7 +5,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Banner } from '@demo/gql-schema';
+import { BannerModelType } from '@demo/mst-gql';
 
 const useStyles = makeStyles({
   img: {
@@ -16,7 +16,7 @@ const useStyles = makeStyles({
 export const BannerCardLoading: FC = () => <Skeleton variant="rect" height={354} />;
 
 interface BannerCardProps {
-  banner: Banner;
+  banner: BannerModelType;
 }
 
 export const BannerCard: FC<BannerCardProps> = ({ banner }) => {

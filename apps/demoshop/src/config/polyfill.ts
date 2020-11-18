@@ -49,13 +49,15 @@ if (isHavePassiveEvents()) {
     'offline',
   ];
 
-  const checkPassiveOptionForEvent = (passive, eventName) => {
+  const checkPassiveOptionForEvent = (eventName: string, passive?: boolean) => {
     if (passive !== undefined) return passive;
 
     return SUPPORTED_PASSIVE_TYPES.indexOf(eventName) === -1 ? false : DEFAULT_OPTIONS.passive;
   };
 
-  const eventPrototype = EventTarget.prototype;
+  const eventPrototype = EventTarget.prototype as EventTarget & {
+    _origAddEvent: EventTarget['addEventListener'];
+  };
 
   Object.defineProperty(eventPrototype, '_origAddEvent', {
     enumerable: false,
@@ -69,12 +71,12 @@ if (isHavePassiveEvents()) {
       ? {
           ...DEFAULT_OPTIONS,
           ...(options as AddEventListenerOptions),
-          passive: checkPassiveOptionForEvent((options as AddEventListenerOptions).passive, type),
+          passive: checkPassiveOptionForEvent(type, (options as AddEventListenerOptions).passive),
         }
       : {
           ...DEFAULT_OPTIONS,
           capture: !!options,
-          passive: checkPassiveOptionForEvent(undefined, type),
+          passive: checkPassiveOptionForEvent(type),
         };
 
     this._origAddEvent(type, listener, newOptions);

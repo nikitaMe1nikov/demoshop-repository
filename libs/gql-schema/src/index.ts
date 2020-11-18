@@ -56,6 +56,8 @@ export abstract class IQuery {
 
     abstract products(categoryID: string, sort?: ProductsSort, first?: number, after?: number): Products | Promise<Products>;
 
+    abstract favorites(): Product[] | Promise<Product[]>;
+
     abstract product(id?: string): Product | Promise<Product>;
 
     abstract me(): User | Promise<User>;
@@ -65,7 +67,6 @@ export class Category {
     __typename?: 'Category';
     id: string;
     name: string;
-    products: Product[];
 }
 
 export class Banner {
@@ -121,7 +122,7 @@ export class CartChangedEvent {
 
 export class Product {
     __typename?: 'Product';
-    amount?: number;
+    amount: number;
     id: string;
     name: string;
     price: number;
@@ -139,6 +140,7 @@ export class Order {
     price: number;
     discount: number;
     products: Product[];
+    totalByID: string[];
 }
 
 export class Products {
@@ -147,7 +149,6 @@ export class Products {
     total: number;
     endCursor: number;
     hasNextPage: boolean;
-    currentSort: ProductsSort;
 }
 
 export class User {
@@ -157,7 +158,6 @@ export class User {
     name: string;
     surname: string;
     roles: UserRole[];
-    favorites?: Product[];
     activeOrders: Order[];
 }
 

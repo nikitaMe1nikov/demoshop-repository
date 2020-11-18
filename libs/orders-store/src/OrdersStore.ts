@@ -1,86 +1,79 @@
-import { observable } from 'mobx';
-import { whenInit, whenReload, whenPayload } from '@nimel/directorr';
-import gql from 'graphql-tag';
-import { Order as OrderType, Product as ProductType } from '@demo/gql-schema';
+import { observable, computed } from 'mobx';
+import { whenInit, whenReload, injectStore } from '@nimel/directorr';
+import { historyChange, HistoryChangeActionPayload } from '@nimel/directorr-router';
 import {
-  historyChange,
-  HistoryChangeActionPayload,
-  actionRouterPush,
-} from '@nimel/directorr-router';
-import {
-  actionGQLQuery,
-  effectGQLQuerySuccess,
-  effectGQLQueryLoading,
-  effectGQLQueryError,
-  GQLPayload,
-  FETCH_POLICY,
-} from '@demo/sagas';
+  RootStore,
+  RootStoreType,
+  selectFromOrder,
+  OrderModelType,
+  FetchPolicy,
+} from '@demo/mst-gql';
 import { ORDERS_URL } from '@demo/url';
-import {actionUpdateOrders, effectUpdateOrders} from './decorators';
+import {
+  actionUpdateOrders,
+  effectUpdateOrders,
+  actionSetOrders,
+  effectSetOrders,
+  SetOrdersPayload,
+  actionEndLodingOrders,
+  effectEndLodingOrders,
+} from './decorators';
 
-const ORDERS_QUERY = gql`
-  query {
-    orders {
-      id
-      total
-      price
-      discount
-      products {
-        id
-        name
-        price
-        amount
-      }
-    }
-  }
-`;
-
-export type Product = Pick<ProductType, 'id' | 'name' | 'price' | 'amount'>;
-export type Order = Pick<OrderType, 'id' | 'total' | 'price' | 'discount'> & {
-  products: Product[];
-};
+const ORDERS_QUERY = selectFromOrder()
+  .total.price.discount.status.totalByID.products((product) => product.name.price.favorite)
+  .toString();
 
 export class OrdersStore {
-  @observable.ref orders?: Order[];
-  @observable isLoading = true;
+  @injectStore(RootStore) rootStore: RootStoreType;
+  @observable.ref orders?: OrderModelType[];
   @observable isUpdating = false;
+
+  @computed get isLoading() {
+    return !this.orders;
+  }
 
   @actionUpdateOrders
   update = () => {};
 
   @effectUpdateOrders
   toUpdate = () => {
-    this.getOrders({
-      update: true,
-    });
+    this.isUpdating = true;
+
+    this.getOrders('network-only');
   };
 
   @whenReload
-  @actionGQLQuery
-  getOrders = (variables?: any) => ({ query: ORDERS_QUERY, fetchPolicy: FETCH_POLICY.NETWORK_ONLY, variables });
+  getOrders = (fetchPolicy?: FetchPolicy) => {
+    const { data, promise } = this.rootStore.qOrders({}, ORDERS_QUERY, {
+      fetchPolicy,
+    });
 
-  @effectGQLQuerySuccess
-  @whenPayload({ query: ORDERS_QUERY })
-  setOrders = ({ data: { orders } }: GQLPayload) => {
-    this.orders = orders;
-  };
-
-  @effectGQLQueryLoading
-  @effectGQLQuerySuccess
-  @effectGQLQueryError
-  @whenPayload({ query: ORDERS_QUERY })
-  changeLoading = ({ data, errors, variables }: GQLPayload) => {
-    if (data || errors) {
-      this.isLoading = false;
-      this.isUpdating = false;
-    } else if (variables?.update) {
-      this.isUpdating = true;
+    if (data?.orders && !this.isReady) {
+      this.whenHaveOrders(data);
     }
+
+    promise.tap(this.whenHaveOrders).finally(this.doneLoading);
   };
 
   @whenInit
-  toInit = () => {
-    if (!this.isReady) this.getOrders();
+  init = () => {
+    this.getOrders();
+  };
+
+  @actionSetOrders
+  whenHaveOrders = ({ orders }: SetOrdersPayload) => ({ orders });
+
+  @effectSetOrders
+  setOrders = ({ orders }: SetOrdersPayload) => {
+    this.orders = orders;
+  };
+
+  @actionEndLodingOrders
+  doneLoading = () => {};
+
+  @effectEndLodingOrders
+  toDoneLoading = () => {
+    this.isUpdating = false;
   };
 
   @historyChange(ORDERS_URL)
@@ -91,4 +84,6 @@ export class OrdersStore {
   get isReady() {
     return !!this.orders;
   }
+
+  toJSON() {}
 }

@@ -54,7 +54,7 @@ interface ProductCardProps {
   productID: string;
   isLogin: boolean;
   productsMap: Map<string, Product>;
-  onOpenModal: (product: Product) => void;
+  openModal: (product: Product) => void;
 }
 
 export const ProductCard: FC<ProductCardProps> = ({
@@ -62,11 +62,11 @@ export const ProductCard: FC<ProductCardProps> = ({
   productID,
   productsMap,
   isLogin,
-  onOpenModal,
+  openModal,
 }) => {
   const { name, price, favorite } = productsMap.get(productID);
-  const onPressImage = useCallback(() => onOpenModal({ id: productID, name, price, favorite }), [
-    onOpenModal,
+  const onPressImage = useCallback(() => openModal({ id: productID, name, price, favorite }), [
+    openModal,
     productID,
   ]);
 

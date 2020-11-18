@@ -5,20 +5,19 @@ import { OrderStatus } from '@demo/gql-schema';
 
 @Injectable()
 export default class OrdersService {
-  idsBatcher = new DataLoader((ids: string[]) =>
-    Promise.resolve(ids.map((id) => ORDERS.find((v) => v.id === id)))
-  );
+  idsBatcher = new DataLoader(((ids: string[]) =>
+    Promise.resolve(ids.map((id) => ORDERS.find((v) => v.id === id)))) as any);
 
   whereUserId(userID: string) {
     return ORDERS.find((o) => o.userID == userID);
   }
 
   whereId(id: string) {
-    return this.idsBatcher.load(id);
+    return this.idsBatcher.load(id) as Promise<OrderData>;
   }
 
   whereIds(ids: string[]) {
-    return (this.idsBatcher.loadMany(ids) as unknown) as Promise<OrderData[]>;
+    return this.idsBatcher.loadMany(ids) as Promise<OrderData[]>;
   }
 
   createAnonimOrder() {
@@ -30,6 +29,7 @@ export default class OrdersService {
       price: 0,
       discount: 0,
       products: [],
+      totalByID: [],
     };
   }
 

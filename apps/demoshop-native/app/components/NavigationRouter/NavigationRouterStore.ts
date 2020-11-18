@@ -223,12 +223,8 @@ export class NavigationRouterStore {
   @delay(0)
   @effectRouterIsPattern
   @actionRouterIsPatternSuccess
-  checkPattern = ({ pattern }: RouterIsPatternActionPayload) => {
-    // console.log('this.pattern === pattern', this.pattern, pattern, this.pattern === pattern);
-    return this.pattern === pattern
-      ? { pattern, path: this.path, queryObject: this.queryObject }
-      : null;
-  };
+  checkPattern = ({ pattern }: RouterIsPatternActionPayload) =>
+    this.pattern === pattern ? { pattern, path: this.path, queryObject: this.queryObject } : null;
 
   @actionRouterNavigate
   navigateToName = (routeName: string) => ({

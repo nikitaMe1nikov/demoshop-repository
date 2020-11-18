@@ -60,13 +60,13 @@ const OrdersList: FC = () => {
 
   if (isLoading) return <OrderListLoading />;
 
-  if (!orders.length)
+  if (!orders?.length)
     return (
       <View style={[stretch, childrenCenter]}>
         <H3>While the order list is empty</H3>
       </View>
     );
-  // console.log('isUpdating', isUpdating);
+
   return (
     <FlatList
       style={styles.list}

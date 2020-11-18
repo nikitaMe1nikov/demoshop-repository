@@ -12,6 +12,7 @@ import NotificationIcon from '@demoshop/components/MainBar/NotificationIcon';
 import { UserStore } from '@demo/user-store';
 import UserIcon from './UserIcon';
 import CartIcon from './CartIcon';
+import OrdersIcon from './OrdersIcon';
 
 interface MainBarProps {
   title?: string;
@@ -38,6 +39,7 @@ export const MainBar: FC<MainBarProps> = ({ children, title, titleURL = ROOT_URL
             <Grid item>
               <CartIcon />
               {isLogin && <NotificationIcon />}
+              {isLogin && <OrdersIcon />}
               <UserIcon />
             </Grid>
           </Grid>

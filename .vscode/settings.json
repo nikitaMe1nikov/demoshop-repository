@@ -4,5 +4,6 @@
     "**/.project": true,
     "**/.settings": true,
     "**/.factorypath": true
-  }
+  },
+  "typescript.tsdk": "/home/manj/Projects/demo-shop/node_modules/typescript/lib"
 }

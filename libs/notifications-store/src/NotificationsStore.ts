@@ -1,33 +1,23 @@
 import { observable, computed } from 'mobx';
-import { effect, injectStore, whenInit, whenPayload } from '@nimel/directorr';
-import gql from 'graphql-tag';
+import { injectStore, whenInit, delay } from '@nimel/directorr';
 import {
-  actionGQLSubscription,
-  effectGQLSubscriptionSuccess,
-  actionDelayAction,
-  GQLPayload,
-} from '@demo/sagas';
+  RootStore,
+  RootStoreType,
+  selectFromCartChangedEvent,
+  CHANGE_CART_QUERY,
+  CartChangedEventModelType,
+} from '@demo/mst-gql';
 import i18n from '@demo/i18n';
 import { UserStore } from '@demo/user-store';
-import { actionSetCart, ORDER_FRAGMENT } from '@demo/cart-store';
+import { actionSetCart } from '@demo/cart-store';
+import { actionHideViewed, effectHideViewed, actionCutList, effectCutList } from './decorators';
 
 const WAIT_VIEWED = 3000;
 const WAIT_CUT_LIST = 10000;
 
-const NOTIFICATIONS_QUERY = gql`
-  subscription Notifications($userID: String!) {
-    cartChanged(userID: $userID) {
-      order {
-        ...OrderFragment
-      }
-      date
-    }
-  }
-  ${ORDER_FRAGMENT}
-`;
-
-const HIDE_VIEWED = 'NOTIFICATIONS.HIDE_VIEWED';
-const CUT_LIST = 'NOTIFICATIONS.CUT_LIST';
+const SUB_TO_CHANGE_CART_QUERY = selectFromCartChangedEvent()
+  .date.order(CHANGE_CART_QUERY)
+  .toString();
 
 interface NotificationData {
   id: string;
@@ -38,6 +28,8 @@ interface NotificationData {
 }
 
 export class NotificationsStore {
+  @injectStore(RootStore) rootStore: RootStoreType;
+
   @observable notifications: NotificationData[] = [];
 
   @computed get notViewedTotal() {
@@ -46,56 +38,36 @@ export class NotificationsStore {
 
   @injectStore(UserStore) userStore: UserStore;
 
-  @actionDelayAction
-  hideNotifications = () => ({
-    wait: WAIT_VIEWED,
-    nextAction: {
-      type: HIDE_VIEWED,
-    },
-  });
+  @delay(WAIT_VIEWED)
+  @actionHideViewed
+  hideNotifications = () => {};
 
-  @actionDelayAction
-  cutList = () => ({
-    wait: WAIT_CUT_LIST,
-    nextAction: {
-      type: CUT_LIST,
-    },
-  });
+  @delay(WAIT_CUT_LIST)
+  @actionCutList
+  cutList = () => {};
 
   showNotifications = () => {
     this.hideNotifications();
     this.cutList();
   };
 
-  @actionGQLSubscription
-  connectNotifications = (userID: string) => ({
-    query: NOTIFICATIONS_QUERY,
-    variables: { userID },
-  });
-
-  @effectGQLSubscriptionSuccess
-  @whenPayload({ query: NOTIFICATIONS_QUERY })
   @actionSetCart
-  getCartChanged = ({
-    data: {
-      cartChanged: { date, order },
-    },
-  }: GQLPayload) => {
+  getCartChanged = ({ date, order: cart }: CartChangedEventModelType) => {
     const id = `${Math.random()}`;
 
     this.notifications.push({ id, message: i18n.cartChanged, viewed: false, date });
 
-    return order;
+    return { cart };
   };
 
-  @effect(HIDE_VIEWED)
+  @effectHideViewed
   whenHideViewed = () => {
     this.notifications.forEach((n) => {
       n.viewed = true;
     });
   };
 
-  @effect(CUT_LIST)
+  @effectCutList
   whenCutList = () => {
     const delta = this.notifications.length - 8;
 
@@ -104,6 +76,11 @@ export class NotificationsStore {
 
   @whenInit
   toInit = () => {
-    if (this.userStore.isLogin) this.connectNotifications(this.userStore.user.id);
+    if (this.userStore.isLogin && this.userStore.user)
+      this.rootStore.sCartChanged(
+        { userId: this.userStore.user.id },
+        SUB_TO_CHANGE_CART_QUERY,
+        this.getCartChanged
+      );
   };
 }

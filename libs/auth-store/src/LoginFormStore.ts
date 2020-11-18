@@ -17,13 +17,13 @@ const VALIDATION_SCHEME = object().shape({
 });
 
 export class LoginFormStore {
-  @injectStore(UserStore) user: UserStore;
+  @injectStore(UserStore) userStore: UserStore;
 
   @connectStore() login = new FormStore();
   @connectStore() password = new FormStore();
 
   @computed get isLoading() {
-    return this.user.isLoadingLogin;
+    return this.userStore.isLoadingLogin;
   }
 
   submitButton = () => {
@@ -38,7 +38,7 @@ export class LoginFormStore {
   @validateAll(VALIDATION_SCHEME)
   submitLogin = ({ validationError }: validatePayload) => {
     if (!validationError) {
-      this.user.login(this.login.value, this.password.value);
+      this.userStore.login(this.login.value, this.password.value);
     }
   };
 }

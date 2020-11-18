@@ -1,16 +1,11 @@
 import '@demoshop/config/init';
 import React, { useEffect, FC } from 'react';
-import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { HttpLink } from 'apollo-link-http';
-import { WebSocketLink } from 'apollo-link-ws';
-import { ApolloLink, split } from 'apollo-link';
-import { getMainDefinition } from 'apollo-utilities';
+import { SubscriptionClient } from 'subscriptions-transport-ws';
 import Head from 'next/head';
 import { ThemeProvider, makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import NoSsr from '@material-ui/core/NoSsr';
-import createSagaMiddleware from 'redux-saga';
+import ModalBoxContainer from '@demoshop/components/ModalBox/ModalBoxContainer';
+import SnackbarContainer from '@demoshop/components/Snackbar/SnackbarContainer';
 import { Directorr } from '@nimel/directorr';
 import { logMiddleware } from '@nimel/directorr-middlewares';
 import {
@@ -19,73 +14,38 @@ import {
   nextWithDirectorr,
   NextHistoryStore,
 } from '@nimel/directorr-next';
-import { APOLLO_CLIENT_CONTEXT, APOLLO_CONTEXT, rootSaga } from '@demo/sagas';
 import theme from '@demoshop/config/theme';
-import { isServer, isBrowser } from '@demo/env';
-import showErrorMiddleware from '@demoshop/middlewares/showErrorMiddleware';
-import ModalBoxContainer from '@demoshop/components/ModalBox/ModalBoxContainer';
-import SnackbarContainer from '@demoshop/components/Snackbar/SnackbarContainer';
-import { EMPTY_OBJECT } from '@demoshop/utils/constants';
+import { isBrowser } from '@demo/env';
+import NoSsr from '@material-ui/core/NoSsr';
+import { createHttpClient } from 'mst-gql';
+import { RootStore } from '@demo/mst-gql';
 
-const httpLink = new HttpLink({
-  uri: 'http://localhost:3333/graphql',
+const gqlHttpClient = createHttpClient('http://localhost:4200/graphql', {
   credentials: 'same-origin',
 });
 
-const wsLink = new WebSocketLink({
-  uri: `ws://localhost:3333/graphql`,
-  options: {
-    reconnect: true,
-  },
+const gqlWsClient = new SubscriptionClient('ws://localhost:3333/graphql', {
+  reconnect: true,
 });
 
-const apolloClient = new ApolloClient({
-  ssrMode: isServer,
-  link: ApolloLink.from([
-    split(
-      // split based on operation type
-      ({ query }) => {
-        const definition = getMainDefinition(query);
-        return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
-      },
-      wsLink,
-      httpLink
-    ),
-  ]),
-  cache: new InMemoryCache(),
-});
+export const makeDirectorr: MakeDirectorr = (ctx, router, initState?) => {
+  if (ctx?.req) gqlHttpClient.setHeader('cookie', ctx?.req?.headers.cookie as string);
 
-export const makeDirectorr: MakeDirectorr = (ctx, router, initialState?) => {
-  const sagaMiddleware = createSagaMiddleware({
-    context: {
-      [APOLLO_CLIENT_CONTEXT]: apolloClient,
-      [APOLLO_CONTEXT]:
-        ctx && ctx.req
-          ? {
-              headers: {
-                cookie: ctx.req.headers.cookie,
-              },
-            }
-          : EMPTY_OBJECT,
-    },
-  });
+  const context = { gqlHttpClient, gqlWsClient };
 
-  const directorr = new Directorr();
+  const directorr = new Directorr({ initState, context });
 
-  directorr.addReduxMiddlewares(sagaMiddleware);
-  sagaMiddleware.run(rootSaga);
-
-  if (initialState) directorr.addInitState(initialState);
+  const store = directorr.addStore(NextHistoryStore);
 
   if (router) {
     const { pathname: pattern, asPath: path, query: queryObject } = router;
 
-    directorr.addStore(NextHistoryStore, { pattern, path, queryObject });
-  } else {
-    directorr.addStore(NextHistoryStore);
+    store.toSetState({ pattern, path, queryObject });
   }
 
-  directorr.addMiddlewares(logMiddleware, showErrorMiddleware);
+  directorr.addStores([RootStore]);
+
+  directorr.addMiddlewares([logMiddleware]);
 
   if (isBrowser) {
     (window as any).directorr = directorr;

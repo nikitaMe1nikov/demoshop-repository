@@ -1,26 +1,42 @@
 import { createActionAndEffect } from '@nimel/directorr';
+import { UserModelType } from '@demo/mst-gql';
 
-export interface ErrorPayload {
-  message: string;
+export interface SetUserPayload {
+  user: UserModelType;
 }
 
-export const [actionLoginSuccess, effectLoginSuccess] = createActionAndEffect('USER.LOGIN_SUCCES');
-export const [actionLoginError, effectLoginError] = createActionAndEffect<ErrorPayload>(
-  'USER.LOGIN_ERROR'
+export interface UserLoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface UserSignupPayload {
+  email: string;
+  password: string;
+  name: string;
+  surname?: string;
+}
+
+export interface UserSaveProfilePayload {
+  email: string;
+  name: string;
+  surname?: string;
+}
+
+export const [actionUserChange, effectUserChange] = createActionAndEffect<void>('UserStore.CHANGE');
+export const [actionUserLogin, effectUserLogin] = createActionAndEffect<UserLoginPayload>(
+  'UserStore.LOGIN'
 );
-export const [actionSignupSuccess, effectSignupSuccess] = createActionAndEffect(
-  'USER.SIGNUP_SUCCES'
+export const [actionUserSignup, effectUserSignup] = createActionAndEffect<UserSignupPayload>(
+  'UserStore.SIGNUP'
 );
-export const [actionSignupError, effectSignupError] = createActionAndEffect<ErrorPayload>(
-  'USER.SIGNUP_ERROR'
+export const [actionUserLogout, effectUserLogout] = createActionAndEffect<void>('UserStore.LOGOUT');
+export const [actionUserSaveProfile, effectUserSaveProfile] = createActionAndEffect<
+  UserSaveProfilePayload
+>('UserStore.SAVE_PROFILE');
+export const [actionEndLoading, effectEndLoading] = createActionAndEffect<void>(
+  'UserStore.END_LOADING'
 );
-export const [actionLogoutSuccess, effectLogoutSuccess] = createActionAndEffect(
-  'USER.LOGOUT_SUCCES'
-);
-export const [actionLogoutError, effectLogoutError] = createActionAndEffect('USER.LOGOUT_ERROR');
-export const [actionSaveProfileSuccess, effectSaveProfileSuccess] = createActionAndEffect(
-  'USER.SAVE_PROFILE_SUCCES'
-);
-export const [actionSaveProfileError, effectSaveProfileError] = createActionAndEffect(
-  'USER.SAVE_PROFILE_ERROR'
+export const [actionSetUser, effectSetUser] = createActionAndEffect<SetUserPayload>(
+  'UserStore.SER_USER'
 );

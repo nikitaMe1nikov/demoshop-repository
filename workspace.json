@@ -537,34 +537,6 @@
         }
       }
     },
-    "product-details-store": {
-      "root": "libs/product-details-store",
-      "sourceRoot": "libs/product-details-store/src",
-      "projectType": "library",
-      "schematics": {},
-      "architect": {
-        "lint": {
-          "builder": "@nrwl/linter:lint",
-          "options": {
-            "linter": "eslint",
-            "config": "libs/product-details-store/.eslintrc",
-            "tsConfig": [
-              "libs/product-details-store/tsconfig.lib.json",
-              "libs/product-details-store/tsconfig.spec.json"
-            ],
-            "exclude": ["**/node_modules/**", "!libs/product-details-store/**"]
-          }
-        },
-        "test": {
-          "builder": "@nrwl/jest:jest",
-          "options": {
-            "jestConfig": "libs/product-details-store/jest.config.js",
-            "tsConfig": "libs/product-details-store/tsconfig.spec.json",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
     "favorites-store": {
       "root": "libs/favorites-store",
       "sourceRoot": "libs/favorites-store/src",
@@ -670,6 +642,34 @@
           "options": {
             "jestConfig": "libs/orders-store/jest.config.js",
             "tsConfig": "libs/orders-store/tsconfig.spec.json",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "mst-gql": {
+      "root": "libs/mst-gql",
+      "sourceRoot": "libs/mst-gql/src",
+      "projectType": "library",
+      "schematics": {},
+      "architect": {
+        "lint": {
+          "builder": "@nrwl/linter:lint",
+          "options": {
+            "linter": "eslint",
+            "config": "libs/mst-gql/.eslintrc",
+            "tsConfig": [
+              "libs/mst-gql/tsconfig.lib.json",
+              "libs/mst-gql/tsconfig.spec.json"
+            ],
+            "exclude": ["**/node_modules/**", "!libs/mst-gql/**"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "libs/mst-gql/jest.config.js",
+            "tsConfig": "libs/mst-gql/tsconfig.spec.json",
             "passWithNoTests": true
           }
         }

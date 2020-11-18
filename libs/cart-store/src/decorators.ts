@@ -1,12 +1,25 @@
 import { createActionAndEffect } from '@nimel/directorr';
-import { Order } from '@demo/gql-schema';
+import { OrderModelType } from '@demo/mst-gql';
+
+export interface SetCartPayload {
+  cart: OrderModelType;
+}
 
 export interface SortPayload {
   sort: number;
 }
 
 export const [actionSetSort, effectSetSort] = createActionAndEffect<SortPayload>(
-  'CART.SET_CURRENT_SORT'
+  'CartStore.SET_CURRENT_SORT'
 );
-export const [actionSetCart, effectSetCart] = createActionAndEffect<Order>('CART.SET_CART');
-export const [actionUpdateCart, effectUpdateCart] = createActionAndEffect('CART.UPDATE');
+export const [actionSetCart, effectSetCart] = createActionAndEffect<SetCartPayload>(
+  'CartStore.SET_CART'
+);
+export const [actionUpdateCart, effectUpdateCart] = createActionAndEffect('CartStore.UPDATE');
+export const [actionFillCart, effectFillCart] = createActionAndEffect<void>('CartStore.FILL_CART');
+export const [actionEndLoadingCart, effectEndLoadingCart] = createActionAndEffect<void>(
+  'CartStore.END_LOADING'
+);
+export const [actionFillCartSuccess, effectFillCartSucces] = createActionAndEffect<void>(
+  'CartStore.FILL_CART_SUCCESS'
+);

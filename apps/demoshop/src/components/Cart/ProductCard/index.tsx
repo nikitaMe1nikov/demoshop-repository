@@ -1,5 +1,6 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useStore } from '@nimel/directorr-react';
 import { styled, makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
@@ -7,9 +8,11 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import ProductAmountButton from '@demoshop/components/Cart/ProductAmountButton';
-import DeleteIcon from './DeleteIcon';
+import { ModalBoxStore } from '@demo/modal-box';
 import { DOL } from '@demoshop/components/constants';
-import { Product } from '@demo/cart-store';
+import { ProductModelType } from '@demo/mst-gql';
+import ProductDetailsModal from '@demoshop/components/Catalog/ProductDetailsModal';
+import DeleteIcon from './DeleteIcon';
 
 const useStyles = makeStyles({
   container: {
@@ -31,24 +34,13 @@ const Image = styled(Box)(({ theme }) => ({
 }));
 
 interface ProductCardProps {
-  productID: string;
-  productsMap: Map<string, Product>;
-  isLoadingDeleting: Map<string, null>;
-  onOpenModal: (id: string) => void;
-  deleteFromCart: (id: string) => void;
+  product: ProductModelType;
 }
 
-export const ProductCard: FC<ProductCardProps> = ({
-  productID,
-  productsMap,
-  onOpenModal,
-  isLoadingDeleting,
-  deleteFromCart,
-}) => {
+export const ProductCard: FC<ProductCardProps> = ({ product }) => {
   const classes = useStyles();
-  const product = productsMap.get(productID);
-  const isLoading = isLoadingDeleting.has(productID);
-  const onClickImage = useCallback(() => onOpenModal(productID), [onOpenModal, productID]);
+  const { open } = useStore(ModalBoxStore);
+  const onClickImage = () => open(ProductDetailsModal, { product });
 
   return (
     <Card className={classes.container} variant="outlined">
@@ -60,13 +52,12 @@ export const ProductCard: FC<ProductCardProps> = ({
         </Typography>
       </CardContent>
       <CardActions>
-        <ProductAmountButton productID={productID} addToCartTittle={REVERT_TO_CART_TITTLE} />
+        <ProductAmountButton product={product} addToCartTittle={REVERT_TO_CART_TITTLE} />
       </CardActions>
       <DeleteIcon
         className={classes.favoriteIcon}
-        isLoading={isLoading}
-        productID={productID}
-        deleteFromCart={deleteFromCart}
+        isLoading={product.isLoadingDelete}
+        deleteFromCart={product.deleteFromCart}
       />
     </Card>
   );

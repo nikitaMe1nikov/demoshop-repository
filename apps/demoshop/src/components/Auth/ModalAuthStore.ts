@@ -1,5 +1,5 @@
 import { actionOpenModal, actionCloseModal } from '@demo/modal-box';
-import { effectLoginSuccess, effectSignupSuccess } from '@demo/user-store';
+import { effectUserChange } from '@demo/user-store';
 import ModalAuth from '@demoshop/components/Auth';
 
 export default class ModalAuthStore {
@@ -8,8 +8,7 @@ export default class ModalAuthStore {
     component: ModalAuth,
   });
 
-  @effectLoginSuccess
-  @effectSignupSuccess
+  @effectUserChange
   @actionCloseModal
   whenLoginSuccess = () => ({
     component: ModalAuth,

@@ -6,7 +6,6 @@ import bcrypt from 'bcrypt';
 import { UserData, OrderData } from '@api/db';
 import { TOKEN_NAME_IN_COOKIE, ANONIM_CART_NAME_IN_COOKIE } from '@api/CONSTANTS';
 import UsersService from './users.service';
-import ProductsService from '@api/modules/products/products.service';
 import OrdersService from '@api/modules/orders/orders.service';
 import {
   UserSignupInput,
@@ -15,6 +14,7 @@ import {
   OrderStatus,
   UserInfoInput,
 } from '@demo/gql-schema';
+import type { GQLContext } from '../../GraphqlOptions';
 
 const SIGN_CONFIG = {
   httpOnly: true,
@@ -35,13 +35,11 @@ export default class UsersResolvers {
   constructor(
     private readonly users: UsersService,
     private readonly jwtService: JwtService,
-    private readonly products: ProductsService,
     private readonly orders: OrdersService
   ) {}
 
   @Query('me')
-  async getReqUser(@Context() { user, res }) {
-    console.log();
+  async getReqUser(@Context() { user, res }: GQLContext) {
     if (!user) return ANONIM_USER;
 
     const userDB = await this.users.whereId(user.sub);
@@ -56,19 +54,8 @@ export default class UsersResolvers {
     return this.users.whereId(user.sub);
   }
 
-  @ResolveField('favorites')
-  async favorites(@Context() { user }) {
-    if (!user) return [];
-
-    const { favorites } = await this.users.whereId(user.sub);
-
-    const products = await this.products.whereIds(favorites);
-
-    return products.map((p) => ({ ...p, favorite: true }));
-  }
-
   @ResolveField('activeOrders')
-  async ordersField(@Context() { user, anonimOrder }) {
+  async ordersField(@Context() { user, anonimOrder }: GQLContext) {
     if (!user) return anonimOrder;
 
     const { orders } = await this.users.whereId(user.sub);
@@ -93,7 +80,7 @@ export default class UsersResolvers {
   @Mutation('signup')
   async signup(
     @Args('userSignupInput') { email, name, surname, password }: UserSignupInput,
-    @Context() { res, anonimOrder }
+    @Context() { res, anonimOrder }: GQLContext
   ) {
     const user = this.users.whereEmail(email);
 
@@ -117,7 +104,7 @@ export default class UsersResolvers {
   @Mutation('login')
   async login(
     @Args('userLoginInput') { email, password }: UserLoginInput,
-    @Context() { res, anonimOrder }
+    @Context() { res, anonimOrder }: GQLContext
   ) {
     const user = this.users.whereEmail(email);
 
@@ -137,7 +124,7 @@ export default class UsersResolvers {
   }
 
   @Mutation('logout')
-  async logout(@Context() { res }) {
+  async logout(@Context() { res }: GQLContext) {
     res.clearCookie(TOKEN_NAME_IN_COOKIE);
     res.clearCookie(ANONIM_CART_NAME_IN_COOKIE);
 

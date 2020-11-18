@@ -1,5 +1,11 @@
-import { observable } from 'mobx';
-import { whenInit, whenPayload, injectStore } from '@nimel/directorr';
+import { observable, computed } from 'mobx';
+import {
+  whenInit,
+  whenPayload,
+  injectStore,
+  createActionAndEffect,
+  whenReload,
+} from '@nimel/directorr';
 import {
   actionRouterIsPattern,
   effectRouterIsPatternSuccess,
@@ -8,26 +14,52 @@ import {
   HistoryChangeActionPayload,
 } from '@nimel/directorr-router';
 import { CATEGORY_URL } from '@demo/url';
-import { CategoriesStore } from '@demo/categories-store';
-export type { Category } from '@demo/categories-store';
+import { RootStore, RootStoreType, CategoryModelType, selectFromCategory } from '@demo/mst-gql';
+export type { CategoryModelType } from '@demo/mst-gql';
 
-export default class CategoryPanel {
-  @injectStore(CategoriesStore) categoriesStore: CategoriesStore;
-  // @observable.ref categories?: Category[];
+export interface CategoriesPayload {
+  categories: CategoryModelType[];
+}
+
+export const [actionSetCategories, effectSetCategories] = createActionAndEffect<CategoriesPayload>(
+  'CategoryPanelStore.setCategories'
+);
+
+const CATEGORIES_QUERY = selectFromCategory().name.toString();
+
+export default class CategoryPanelStore {
+  @injectStore(RootStore) rootStore: RootStoreType;
+  @observable.ref categories?: CategoryModelType[];
   @observable currentCategoryID?: string;
-  // @observable isLoading = false;
 
-  get categories() {
-    return this.categoriesStore.categories;
+  @computed get isLoading() {
+    return !!this.categories;
   }
 
-  get isLoading() {
-    return this.categoriesStore.isLoading;
-  }
+  @whenReload
+  getCategories = () => {
+    const { data, promise } = this.rootStore.qCategories({}, CATEGORIES_QUERY);
+
+    if (data?.categories) this.whenHaveCategories(data);
+
+    promise.tap(this.whenHaveCategories);
+  };
+
+  @actionSetCategories
+  whenHaveCategories = ({ categories }: CategoriesPayload) => ({ categories });
+
+  @effectSetCategories
+  setCategories = ({ categories }: CategoriesPayload) => {
+    this.categories = categories;
+  };
 
   @whenInit
   @actionRouterIsPattern
-  toInit = () => ({ pattern: CATEGORY_URL });
+  toInit = () => {
+    this.getCategories();
+
+    return { pattern: CATEGORY_URL };
+  };
 
   @effectRouterIsPatternSuccess
   @whenPayload({
@@ -37,19 +69,10 @@ export default class CategoryPanel {
     this.currentCategoryID = queryObject.categoryID as string;
   };
 
-  // @effect(actionHistoryPop.type)
-  // toRouteChange = ({ queryObject, pattern }) => {
-  //   console.log('queryObject, pattern', queryObject, pattern);
-  //   // this.currentCategoryID = pattern === CATEGORY_URL ? queryObject.categoryID : undefined;
-  // };
-
   @historyChange(CATEGORY_URL)
   toRouteChange = ({ match, queryObject }: HistoryChangeActionPayload) => {
-    // console.log('queryObject, pattern', match, queryObject);
     this.currentCategoryID = match ? (queryObject.categoryID as string) : undefined;
   };
 
-  // get isReady() {
-  //   return !!this.categories;
-  // }
+  toJSON() {}
 }

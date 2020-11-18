@@ -12,7 +12,6 @@ import CardActions from '@material-ui/core/CardActions';
 import Skeleton from '@material-ui/lab/Skeleton';
 import Page from '@demoshop/components/Page';
 import MainBar from '@demoshop/components/MainBar';
-import { CartStore } from '@demo/cart-store';
 import { UserStore } from '@demo/user-store';
 import TextInput from '@demoshop/components/TextInput';
 import { ProfileStore } from '@demo/profile-store';
@@ -58,7 +57,7 @@ export const Profile: DirectorrNextComponent = () => {
           ) : (
             <Card variant="outlined">
               <Image />
-              <CardHeader title={`${user.name} ${user.surname}`} />
+              <CardHeader title={`${user?.name} ${user?.surname}`} />
               <CardContent>
                 <Box display="flex" flexDirection="row">
                   <Box display="flex" flexDirection="column" flex={1}>
@@ -117,14 +116,10 @@ export const Profile: DirectorrNextComponent = () => {
   );
 };
 
-Profile.whenServerLoadDirectorr = (directorr) => {
-  directorr.addStores(UserStore, CartStore, ProfileStore);
-};
-
 Profile.whenServerDirectorrReady = (directorr, { ctx }) => {
   const userStore = directorr.getStore(UserStore);
 
-  if (userStore.isAnonim) {
+  if (userStore?.isAnonim && ctx.res) {
     ctx.res.writeHead(302, { Location: ROOT_URL });
     ctx.res.end();
   }

@@ -1,6 +1,8 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "strict": true,
+    "strictPropertyInitialization": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "rootDir": ".",
@@ -35,13 +37,11 @@
       "@demo/categories-store": ["libs/categories-store/src/index.ts"],
       "@demo/catalog-store": ["libs/catalog-store/src/index.ts"],
       "@demo/auth-store": ["libs/auth-store/src/index.ts"],
-      "@demo/product-details-store": [
-        "libs/product-details-store/src/index.ts"
-      ],
       "@demo/favorites-store": ["libs/favorites-store/src/index.ts"],
       "@demo/notifications-store": ["libs/notifications-store/src/index.ts"],
       "@demo/constants": ["libs/constants/src/index.ts"],
-      "@demo/orders-store": ["libs/orders-store/src/index.ts"]
+      "@demo/orders-store": ["libs/orders-store/src/index.ts"],
+      "@demo/mst-gql": ["libs/mst-gql/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

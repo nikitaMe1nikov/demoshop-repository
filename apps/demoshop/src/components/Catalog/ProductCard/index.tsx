@@ -1,5 +1,6 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useStore } from '@nimel/directorr-react';
 import { styled, makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
@@ -10,7 +11,10 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import ProductAmountButton from '@demoshop/components/Cart/ProductAmountButton';
 import FavoriteIcon from '@demoshop/components/Catalog/ProductCard/FavoriteIcon';
 import { DOL } from '@demoshop/components/constants';
-import { Product } from '@demo/catalog-store';
+import { ProductModelType } from '@demo/mst-gql';
+import ProductDetailsModal from '@demoshop/components/Catalog/ProductDetailsModal';
+import { UserStore } from '@demo/user-store';
+import { ModalBoxStore } from '@demo/modal-box';
 
 export const HEIGHT = 323;
 
@@ -38,51 +42,28 @@ const Image = styled(Box)(({ theme }) => ({
 }));
 
 interface ProductCardProps {
-  productID: string;
-  isLogin: boolean;
-  productsMap: Map<string, Product>;
-  isLoadingFavorites: Map<string, null>;
-  addFavorite: (id: string) => void;
-  removeFavorite: (id: string) => void;
-  onOpenModal: (id: string) => void;
+  product: ProductModelType;
 }
 
-export const ProductCard: FC<ProductCardProps> = ({
-  productID,
-  productsMap,
-  isLoadingFavorites,
-  addFavorite,
-  removeFavorite,
-  isLogin,
-  onOpenModal,
-}) => {
+export const ProductCard: FC<ProductCardProps> = ({ product }) => {
   const classes = useStyles();
-  const { name, price, favorite } = productsMap.get(productID);
-  const isLoading = isLoadingFavorites.has(productID);
-  const onClickImage = useCallback(() => onOpenModal(productID), [onOpenModal, productID]);
+  const { isLogin } = useStore(UserStore);
+  const { open } = useStore(ModalBoxStore);
+  const onClickImage = () => open(ProductDetailsModal, { product });
 
   return (
     <Card className={classes.container} variant="outlined">
       <Image onClick={onClickImage} />
       <CardContent>
-        <Typography variant="subtitle1">{name}</Typography>
+        <Typography variant="subtitle1">{product.name}</Typography>
         <Typography variant="subtitle2" color="textSecondary">
-          {price} {DOL}
+          {product.price} {DOL}
         </Typography>
       </CardContent>
       <CardActions>
-        <ProductAmountButton productID={productID} />
+        <ProductAmountButton product={product} />
       </CardActions>
-      {isLogin && (
-        <FavoriteIcon
-          className={classes.favoriteIcon}
-          isLoading={isLoading}
-          productID={productID}
-          favorite={favorite}
-          addFavorite={addFavorite}
-          removeFavorite={removeFavorite}
-        />
-      )}
+      {isLogin && <FavoriteIcon className={classes.favoriteIcon} product={product} />}
     </Card>
   );
 };

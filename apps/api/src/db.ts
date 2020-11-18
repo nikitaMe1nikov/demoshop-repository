@@ -241,13 +241,11 @@ const CATEGORIES_TEMPLATES = [
   },
 ];
 
-export interface CategoryData extends Omit<Category, 'products'> {
-  productsIDS: string[];
-}
+export type CategoryData = Category;
 
 export const CATEGORIES: CategoryData[] = CATEGORIES_TEMPLATES.map((c) => ({
   ...c,
-  productsIDS: PRODUCTS.filter((p) => p.categoryID === c.id).map((p) => p.id),
+  // productsIDS: PRODUCTS.filter((p) => p.categoryID === c.id).map((p) => p.id),
 })).sort((a, b) => {
   if (a.name > b.name) {
     return 1;
@@ -260,7 +258,8 @@ export const CATEGORIES: CategoryData[] = CATEGORIES_TEMPLATES.map((c) => ({
   return 0;
 });
 
-export interface OrderData extends Pick<Order, 'id' | 'status' | 'total' | 'discount' | 'price'> {
+export interface OrderData
+  extends Pick<Order, 'id' | 'status' | 'total' | 'discount' | 'price' | 'totalByID'> {
   userID: string;
   products: ProductInOrder[];
 }
@@ -269,6 +268,11 @@ export interface ProductInOrder {
   id: string;
   amount: number;
 }
+
+const productsInOrder = PRODUCTS.slice(0, 5).map((p, index) => ({
+  id: p.id,
+  amount: index + 1,
+}));
 
 export const ORDERS: OrderData[] = [
   {
@@ -279,15 +283,27 @@ export const ORDERS: OrderData[] = [
     discount: 0,
     products: [],
     userID: '3.1',
+    totalByID: [],
   },
   {
     id: '4.2',
     status: OrderStatus.FILLED,
-    total: 0,
-    price: 0,
+    total: productsInOrder.reduce((total: number, p: ProductInOrder) => total + p.amount, 0),
+    price: productsInOrder.reduce(
+      (price: number, p: ProductInOrder) =>
+        price + (PRODUCTS.find((product) => product.id === p.id)?.price || 0) * p.amount,
+      0
+    ),
     discount: 0,
-    products: PRODUCTS.slice(0, 5).map((p) => ({ id: p.id, amount: 2 })),
+    products: productsInOrder,
     userID: '3.1',
+    totalByID: productsInOrder.reduce((totalByID: string[], p: ProductInOrder) => {
+      for (let i = 0; i < p.amount; i++) {
+        totalByID.push(p.id);
+      }
+
+      return totalByID;
+    }, []),
   },
 ];
 

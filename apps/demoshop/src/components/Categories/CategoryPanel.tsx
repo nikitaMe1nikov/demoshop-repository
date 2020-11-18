@@ -7,9 +7,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import { useStore } from '@nimel/directorr-react';
-// import { CategoriesStore, Category } from '@demo/categories-store';
 import { CATEGORY_URL } from '@demo/url';
-import CategoryPanelStore, { Category } from './CategoryPanel.store';
+import { CategoryModelType } from '@demo/mst-gql';
+import CategoryPanelStore from './CategoryPanel.store';
 
 const Container = styled(List)(({ theme }) => ({
   position: 'absolute',
@@ -20,7 +20,7 @@ const Container = styled(List)(({ theme }) => ({
 }));
 
 interface CategoryItemProps {
-  category: Category;
+  category: CategoryModelType;
   selected: boolean;
 }
 

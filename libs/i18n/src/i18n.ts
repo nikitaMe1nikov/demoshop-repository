@@ -3,11 +3,13 @@ export default {
   PriceDSC: 'descending',
   productAddedInCart: 'product added in cart',
   productRemovedFromCart: 'product removed from cart',
+  productDeletedFromCart: 'product deleted from cart',
   productAddedInFavorite: 'product added in favorite',
   productRemovedFromFavorite: 'product removed from favorite',
   cartChanged: 'cart changed',
   profileSaved: 'profile saved',
   signup: 'successfully registered',
   login: 'successfully login',
+  logoutSuccess: 'successfully logout',
   addInCart: 'add in cart',
-};
+} as { [key: string]: string };

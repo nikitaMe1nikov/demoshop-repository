@@ -1,52 +1,41 @@
-import { observable } from 'mobx';
-import { whenInit, whenReload, whenPayload } from '@nimel/directorr';
-import gql from 'graphql-tag';
-import { Category as CategoryType } from '@demo/gql-schema';
-import {
-  actionGQLQuery,
-  effectGQLQuerySuccess,
-  effectGQLQueryLoading,
-  GQLPayload,
-} from '@demo/sagas';
+import { observable, computed } from 'mobx';
+import { whenInit, whenReload, injectStore } from '@nimel/directorr';
+import { RootStore, RootStoreType, CategoryModelType, selectFromCategory } from '@demo/mst-gql';
+import { actionSetCategories, effectSetCategories, CategoriesPayload } from './decorators';
 
-const CATEGORIES_QUERY = gql`
-  query {
-    categories {
-      id
-      name
-    }
-  }
-`;
-
-export type Category = Pick<CategoryType, 'id' | 'name'>;
+const CATEGORIES_QUERY = selectFromCategory().name.toString();
 
 export class CategoriesStore {
-  @observable.ref categories?: Category[];
-  @observable isLoading = true;
+  @injectStore(RootStore) rootStore: RootStoreType;
+  @observable.ref categories?: CategoryModelType[];
 
-  @whenReload
-  @actionGQLQuery
-  getCategories = () => ({ query: CATEGORIES_QUERY });
-
-  @effectGQLQuerySuccess
-  @whenPayload({ query: CATEGORIES_QUERY })
-  setCategories = ({ data: { categories } }: GQLPayload) => {
-    this.categories = categories;
-  };
-
-  @effectGQLQueryLoading
-  @effectGQLQuerySuccess
-  @whenPayload({ query: CATEGORIES_QUERY })
-  changeLoading = ({ data }: GQLPayload) => {
-    this.isLoading = !data;
-  };
+  @computed get isLoading() {
+    return !!this.categories;
+  }
 
   @whenInit
-  toInit = () => {
-    if (!this.isReady) this.getCategories();
+  @whenReload
+  getCategories = () => {
+    const { data, promise } = this.rootStore.qCategories({}, CATEGORIES_QUERY);
+
+    if (data?.categories) {
+      this.whenHaveCategories(data);
+    } else {
+      promise.tap(this.whenHaveCategories);
+    }
+  };
+
+  @actionSetCategories
+  whenHaveCategories = ({ categories }: CategoriesPayload) => ({ categories });
+
+  @effectSetCategories
+  setCategories = ({ categories }: CategoriesPayload) => {
+    this.categories = categories;
   };
 
   get isReady() {
     return !!this.categories;
   }
+
+  toJSON() {}
 }

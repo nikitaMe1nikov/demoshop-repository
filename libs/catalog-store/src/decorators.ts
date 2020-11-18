@@ -1,5 +1,5 @@
 import { createActionAndEffect } from '@nimel/directorr';
-import { ProductsSort } from '@demo/gql-schema';
+import { ProductsModelType, ProductsSort, CategoryModelType } from '@demo/mst-gql';
 
 export interface SortPayload {
   sort: ProductsSort;
@@ -9,15 +9,29 @@ export interface PagePayload {
   page: number;
 }
 
+export interface ProductsPayload {
+  products: ProductsModelType;
+}
+
+export interface CategoryPayload {
+  category: CategoryModelType;
+}
+
 export const [actionSetSort, effectSetSort] = createActionAndEffect<SortPayload>(
-  'PRODUCTS.SET_CURRENT_SORT'
+  'CatalogStore.SET_CURRENT_SORT'
 );
 export const [actionLoadMore, effectLoadMore] = createActionAndEffect<void>(
-  'PRODUCTS.LOAD_MORE_PRODUCTS'
+  'CatalogStore.LOAD_MORE_PRODUCTS'
 );
 export const [actionSetPage, effectSetPage] = createActionAndEffect<PagePayload>(
-  'PRODUCTS.SET_PAGE_PRODUCTS'
+  'CatalogStore.SET_PAGE_PRODUCTS'
 );
 export const [actionUpdateProducts, effectUpdateProduct] = createActionAndEffect(
-  'PRODUCTS.UPDATE_PRODUCTS'
+  'CatalogStore.UPDATE_PRODUCTS'
+);
+export const [actionSetProducts, effectSetProducts] = createActionAndEffect<ProductsPayload>(
+  'CatalogStore.SET_PRODUCTS'
+);
+export const [actionSetCategory, effectSetCategory] = createActionAndEffect<CategoryPayload>(
+  'CatalogStore.SET_CATEGORY'
 );

@@ -71,9 +71,6 @@
     "auth-store": {
       "tags": []
     },
-    "product-details-store": {
-      "tags": []
-    },
     "favorites-store": {
       "tags": []
     },
@@ -84,6 +81,9 @@
       "tags": []
     },
     "orders-store": {
+      "tags": []
+    },
+    "mst-gql": {
       "tags": []
     }
   }

@@ -4,9 +4,8 @@ import { CATEGORIES } from '@api/db';
 
 @Injectable()
 export default class CategoriesService {
-  idsBatcher = new DataLoader((ids: string[]) =>
-    Promise.resolve(ids.map((id) => CATEGORIES.find((v) => v.id === id)))
-  );
+  idsBatcher = new DataLoader(((ids: string[]) =>
+    Promise.resolve(ids.map((id) => CATEGORIES.find((v) => v.id === id)))) as any);
 
   all() {
     return CATEGORIES;

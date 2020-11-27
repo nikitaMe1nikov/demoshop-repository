@@ -1,0 +1,14 @@
+{
+  "name": "@frontend/demoshop-e2e",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "nx test",
+    "lint": "nx workspace-lint && nx lint",
+    "e2e": "nx e2e"
+  },
+  "private": true,
+  "dependencies": {
+    "cypress": "^4.1.0"
+  }
+}

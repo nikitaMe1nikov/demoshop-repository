@@ -1,48 +1,19 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
     "strict": true,
     "strictPropertyInitialization": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
+    "target": "esnext",
     "module": "esnext",
-    "typeRoots": ["node_modules/@types"],
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@api/*": ["apps/api/src/*"],
-      "@demoshop/*": ["apps/demoshop/src/*"],
-      "@demoshop-native/*": ["apps/demoshop-native/app/*"],
-      "@demo/user-store": ["libs/user-store/src/index.ts"],
-      "@demo/sagas": ["libs/sagas/src/index.ts"],
-      "@demo/env": ["libs/env/src/index.ts"],
-      "@demo/url": ["libs/url/src/index.ts"],
-      "@demo/snackbar": ["libs/snackbar/src/index.ts"],
-      "@demo/i18n": ["libs/i18n/src/index.ts"],
-      "@demo/gql-schema": ["libs/gql-schema/src/index.ts"],
-      "@demo/profile-store": ["libs/profile-store/src/index.ts"],
-      "@demo/cart-store": ["libs/cart-store/src/index.ts"],
-      "@demo/modal-box": ["libs/modal-box/src/index.ts"],
-      "@demo/dashboard-store": ["libs/dashboard-store/src/index.ts"],
-      "@demo/categories-store": ["libs/categories-store/src/index.ts"],
-      "@demo/catalog-store": ["libs/catalog-store/src/index.ts"],
-      "@demo/auth-store": ["libs/auth-store/src/index.ts"],
-      "@demo/favorites-store": ["libs/favorites-store/src/index.ts"],
-      "@demo/notifications-store": ["libs/notifications-store/src/index.ts"],
-      "@demo/constants": ["libs/constants/src/index.ts"],
-      "@demo/orders-store": ["libs/orders-store/src/index.ts"],
-      "@demo/mst-gql": ["libs/mst-gql/src/index.ts"]
-    }
+    "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": ["node_modules"]
 }

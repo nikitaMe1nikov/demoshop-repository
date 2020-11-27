@@ -1,0 +1,11 @@
+{
+  "name": "@frontend/cart-store",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "mobx": "4.15.7",
+    "@nimel/directorr": "^1.0.0-rc.7",
+    "@nimel/directorr-router": "^1.0.0-rc.7"
+  }
+}

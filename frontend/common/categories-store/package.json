@@ -1,0 +1,10 @@
+{
+  "name": "@frontend/categories-store",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "mobx": "4.15.7",
+    "@nimel/directorr": "^1.0.0-rc.7"
+  }
+}

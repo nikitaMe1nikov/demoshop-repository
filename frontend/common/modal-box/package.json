@@ -1,0 +1,10 @@
+{
+  "name": "@frontend/modal-box",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "react": "16.12",
+    "@nimel/directorr": "^1.0.0-rc.7"
+  }
+}

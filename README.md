@@ -1,4 +1,4 @@
-# DemoShop = NestJS(apollo-server) + NextJS(React + material-ui + Directorr + apollo-client)
+# DemoShop = NestJS(apollo-server) + NextJS(React + material-ui + Directorr + mts-gql) + React-Native(native-base + Directorr + mts-gql)
 
 Demo user mail@mail.com:12345678
 
